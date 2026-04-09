@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>FORM — Fitness App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   DESIGN TOKENS — Ben Hanser Atomic System
+   ========================================================= */
+:root {
+  /* Palette — lifted from Figma: olive/sage greens + burgundy accent */
+  --sage-50: #f4f7f1;
+  --sage-100: #e4ede0;
+  --sage-200: #c6d9bf;
+  --sage-300: #9dbc93;
+  --sage-400: #6d9963;
+  --sage-500: #4e7d45;
+  --sage-600: #3a6333;
+  --sage-700: #2e4f28;
+  --sage-800: #253f21;
+  --sage-900: #1a2e17;
+
+  --burg-400: #8b3a4a;
+  --burg-500: #722f3d;
+  --burg-600: #5a2430;
+
+  --cream: #faf8f4;
+  --parchment: #f0ece3;
+  --warm-gray: #c8bfb0;
+  --stone: #8a8278;
+  --charcoal: #2c2820;
+  --ink: #1a1612;
+
+  /* Semantic */
+  --bg: var(--cream);
+  --surface: #ffffff;
+  --surface-tinted: #f5f2eb;
+  --border: rgba(44,40,32,0.09);
+  --border-strong: rgba(44,40,32,0.16);
+  --text-primary: var(--charcoal);
+  --text-secondary: var(--stone);
+  --text-tertiary: var(--warm-gray);
+  --accent: var(--sage-500);
+  --accent-light: var(--sage-100);
+  --accent-dark: var(--sage-700);
+  --danger: var(--burg-500);
+
+  /* Spacing scale */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px;
+  --s6: 24px; --s7: 32px; --s8: 40px; --s9: 48px;
+
+  /* Radii */
+  --r-sm: 10px; --r-md: 16px; --r-lg: 24px; --r-xl: 32px;
+
+  /* Typography */
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'Outfit', sans-serif;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(26,22,18,.06), 0 1px 2px rgba(26,22,18,.04);
+  --shadow-md: 0 4px 16px rgba(26,22,18,.08), 0 2px 6px rgba(26,22,18,.05);
+  --shadow-lg: 0 12px 40px rgba(26,22,18,.12), 0 4px 12px rgba(26,22,18,.08);
+  --shadow-card: 0 2px 12px rgba(78,125,69,.1), 0 1px 4px rgba(78,125,69,.06);
+}
+
+/* =========================================================
+   RESET & BASE
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  background: #e8e4da;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* =========================================================
+   PHONE SHELL
+   ========================================================= */
+.shell {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.phone {
+  width: 393px;
+  height: 852px;
+  background: var(--bg);
+  border-radius: 48px;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,.12),
+    0 40px 80px rgba(0,0,0,.3),
+    0 16px 32px rgba(0,0,0,.2),
+    inset 0 0 0 1px rgba(255,255,255,.5);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Dynamic island */
+.island {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 34px;
+  background: #0a0a0a;
+  border-radius: 20px;
+  z-index: 100;
+}
+
+/* Status bar */
+.status-bar {
+  height: 54px;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 24px 8px;
+  justify-content: space-between;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+.status-time { font-size: 15px; font-weight: 600; color: var(--charcoal); letter-spacing: -0.3px; }
+.status-icons { display: flex; gap: 6px; align-items: center; }
+.status-icons span { font-size: 14px; color: var(--charcoal); }
+
+/* =========================================================
+   SCREEN SYSTEM
+   ========================================================= */
+.screen {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .28s cubic-bezier(.4,0,.2,1), transform .28s cubic-bezier(.4,0,.2,1);
+  transform: translateY(10px);
+  overflow: hidden;
+}
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+  transform: translateY(0);
+}
+.screen.exit {
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+}
+
+/* =========================================================
+   SCROLLABLE CONTENT AREA
+   ========================================================= */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 100px;
+}
+.scroll-area::-webkit-scrollbar { display: none; }
+
+/* =========================================================
+   BOTTOM NAV
+   ========================================================= */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 88px;
+  background: rgba(250,248,244,.92);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  padding: 10px 8px 0;
+  gap: 0;
+  z-index: 50;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background .15s;
+}
+.nav-item:active { background: rgba(78,125,69,.08); }
+.nav-icon-wrap {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px;
+  transition: background .2s, transform .15s;
+}
+.nav-item.active .nav-icon-wrap {
+  background: var(--accent);
+  box-shadow: 0 4px 12px rgba(78,125,69,.3);
+  transform: translateY(-2px);
+}
+.nav-svg { width: 20px; height: 20px; stroke: var(--text-secondary); stroke-width: 1.8; fill: none; transition: stroke .2s; }
+.nav-item.active .nav-svg { stroke: white; }
+.nav-label { font-size: 10px; font-weight: 500; color: var(--text-tertiary); letter-spacing: .2px; transition: color .2s; }
+.nav-item.active .nav-label { color: var(--accent); font-weight: 600; }
+/* Center add button */
+.nav-add {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 4px;
+  border: none; background: none; cursor: pointer;
+}
+.nav-add-circle {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--sage-400), var(--sage-600));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(78,125,69,.4);
+  transition: transform .15s, box-shadow .15s;
+  margin-top: -12px;
+}
+.nav-add:active .nav-add-circle { transform: scale(.94); box-shadow: 0 2px 10px rgba(78,125,69,.3); }
+.nav-add-plus { font-size: 24px; color: white; font-weight: 300; line-height: 1; }
+.nav-add-label { font-size: 10px; font-weight: 500; color: var(--text-tertiary); margin-top: 2px; }
+
+/* =========================================================
+   TYPOGRAPHY UTILITIES
+   ========================================================= */
+.display { font-family: var(--font-display); font-size: 38px; font-weight: 400; line-height: 1.1; color: var(--ink); letter-spacing: -.5px; }
+.display-sm { font-family: var(--font-display); font-size: 28px; font-weight: 400; line-height: 1.15; color: var(--ink); }
+.heading { font-size: 20px; font-weight: 700; color: var(--text-primary); letter-spacing: -.3px; }
+.subheading { font-size: 13px; font-weight: 600; color: var(--text-secondary); letter-spacing: .5px; text-transform: uppercase; }
+.body { font-size: 15px; font-weight: 400; color: var(--text-primary); line-height: 1.5; }
+.caption { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+.micro { font-size: 10px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .8px; text-transform: uppercase; }
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+.card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.card-hero {
+  background: linear-gradient(145deg, var(--sage-700) 0%, var(--sage-500) 60%, var(--sage-400) 100%);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  position: relative;
+  color: white;
+}
+.card-subtle {
+  background: var(--surface-tinted);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer; border-radius: var(--r-md);
+  font-family: var(--font-body); font-weight: 600; font-size: 15px;
+  padding: 16px 24px; width: 100%;
+  transition: transform .12s, box-shadow .12s, opacity .12s;
+}
+.btn:active { transform: scale(.97); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--sage-500), var(--sage-700));
+  color: white;
+  box-shadow: 0 4px 20px rgba(78,125,69,.35);
+}
+.btn-primary:active { box-shadow: 0 2px 10px rgba(78,125,69,.25); }
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1.5px solid var(--border-strong);
+  font-weight: 500;
+}
+.btn-ghost:active { background: var(--surface-tinted); }
+
+/* =========================================================
+   FORM ELEMENTS
+   ========================================================= */
+.input-group { display: flex; flex-direction: column; gap: 6px; }
+.input-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); letter-spacing: .4px; text-transform: uppercase; }
+.input-field {
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--text-primary);
+  outline: none;
+  width: 100%;
+  transition: border-color .2s, box-shadow .2s;
+}
+.input-field:focus { border-color: var(--sage-400); box-shadow: 0 0 0 4px rgba(78,125,69,.1); }
+.input-field::placeholder { color: var(--warm-gray); }
+
+/* =========================================================
+   PILL / TAG
+   ========================================================= */
+.pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 10px; border-radius: 100px;
+  font-size: 11px; font-weight: 600; letter-spacing: .3px;
+  background: var(--accent-light); color: var(--accent-dark);
+}
+.pill-danger { background: rgba(114,47,61,.1); color: var(--burg-500); }
+.pill-neutral { background: var(--surface-tinted); color: var(--stone); }
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+.progress-track {
+  height: 6px; border-radius: 100px;
+  background: var(--parchment); overflow: hidden;
+}
+.progress-fill {
+  height: 100%; border-radius: 100px;
+  background: linear-gradient(90deg, var(--sage-400), var(--sage-600));
+  transition: width .8s cubic-bezier(.4,0,.2,1);
+}
+
+/* =========================================================
+   AVATAR
+   ========================================================= */
+.avatar {
+  border-radius: 50%; object-fit: cover;
+  background: var(--sage-100);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-family: var(--font-body); color: var(--sage-700);
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   SCREEN-SPECIFIC PADDING
+   ========================================================= */
+.px-screen { padding-left: 20px; padding-right: 20px; }
+.pt-screen { padding-top: 12px; }
+
+/* =========================================================
+   CONNECTORS / FLOW INDICATORS
+   ========================================================= */
+.connector-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--sage-300); flex-shrink: 0;
+}
+.step-line {
+  width: 1px; flex: 1; min-height: 20px;
+  background: linear-gradient(to bottom, var(--sage-200), transparent);
+}
+
+/* =========================================================
+   HORIZONTAL SCROLL ROW
+   ========================================================= */
+.h-scroll {
+  display: flex; gap: 12px; overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: none; padding: 4px 20px 4px;
+  margin: 0 -20px;
+}
+.h-scroll::-webkit-scrollbar { display: none; }
+
+/* =========================================================
+   EXERCISE ROW
+   ========================================================= */
+.ex-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background .12s;
+}
+.ex-row:last-child { border-bottom: none; }
+.ex-row:active { background: rgba(78,125,69,.04); }
+.ex-icon-box {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: var(--accent-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.ex-icon-box.done { background: var(--sage-500); }
+.ex-icon-box.done svg { stroke: white; }
+
+/* =========================================================
+   COMMUNITY POST CARD
+   ========================================================= */
+.post {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  display: flex; flex-direction: column; gap: 12px;
+  box-shadow: var(--shadow-sm);
+}
+.post-action { background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; color: var(--text-secondary); font-family: var(--font-body); padding: 4px 8px; border-radius: 8px; transition: background .12s, color .12s; }
+.post-action:hover { background: var(--accent-light); color: var(--accent); }
+
+/* =========================================================
+   ONBOARDING PROGRESS DOTS
+   ========================================================= */
+.ob-dots { display: flex; gap: 6px; align-items: center; }
+.ob-dot { width: 6px; height: 6px; border-radius: 3px; background: var(--sage-200); transition: all .3s; }
+.ob-dot.active { width: 20px; background: var(--sage-500); }
+
+/* =========================================================
+   SELECTION CARDS
+   ========================================================= */
+.sel-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--r-md);
+  padding: 16px;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.sel-card.selected {
+  border-color: var(--sage-400);
+  background: linear-gradient(135deg, rgba(78,125,69,.04), rgba(78,125,69,.08));
+  box-shadow: 0 0 0 3px rgba(78,125,69,.12), var(--shadow-card);
+}
+.sel-check {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  flex-shrink: 0; margin-top: 2px;
+  transition: all .2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.sel-card.selected .sel-check {
+  background: var(--sage-500); border-color: var(--sage-500);
+}
+.sel-check-icon { opacity: 0; transition: opacity .2s; }
+.sel-card.selected .sel-check-icon { opacity: 1; }
+
+/* =========================================================
+   METRIC CARD — mini stat boxes
+   ========================================================= */
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px;
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.metric-val { font-size: 26px; font-weight: 800; letter-spacing: -1.2px; color: var(--ink); line-height: 1; }
+.metric-val span { font-size: 14px; font-weight: 500; color: var(--text-secondary); }
+.metric-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: var(--text-tertiary); }
+.metric-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 600; color: var(--sage-600); background: var(--sage-100); padding: 2px 6px; border-radius: 100px; width: fit-content; }
+
+/* =========================================================
+   ANATOMY BODY FIGURE connector
+   ========================================================= */
+.body-figure {
+  position: relative;
+  width: 120px; height: 180px;
+  margin: 0 auto;
+}
+.body-svg-wrap {
+  width: 100%; height: 100%;
+}
+.muscle-label {
+  position: absolute;
+  font-size: 9px; font-weight: 700;
+  color: var(--sage-600); letter-spacing: .5px;
+  display: flex; align-items: center; gap: 4px;
+}
+.muscle-line { width: 20px; height: 1px; background: var(--sage-400); }
+
+/* =========================================================
+   SPLASH / LANDING
+   ========================================================= */
+#splash {
+  background: var(--ink);
+  justify-content: flex-end;
+  padding-bottom: 0;
+}
+.splash-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 60% 30%, rgba(78,125,69,.35) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 20% 70%, rgba(114,47,61,.2) 0%, transparent 60%),
+    linear-gradient(180deg, #1a2e17 0%, #1a1612 100%);
+}
+.splash-pattern {
+  position: absolute; inset: 0; opacity: .06;
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,.3) 40px, rgba(255,255,255,.3) 41px),
+    repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,.3) 40px, rgba(255,255,255,.3) 41px);
+}
+.splash-content {
+  position: relative; z-index: 2;
+  padding: 40px 28px;
+  background: linear-gradient(to top, rgba(26,22,18,1) 0%, rgba(26,22,18,.95) 60%, transparent 100%);
+}
+.splash-logotype {
+  font-family: var(--font-display);
+  font-size: 56px; font-weight: 400; font-style: italic;
+  color: white; letter-spacing: -1px; line-height: 1;
+  margin-bottom: 6px;
+}
+.splash-logotype span { color: var(--sage-300); }
+.splash-tagline { font-size: 14px; color: rgba(255,255,255,.5); font-weight: 300; margin-bottom: 32px; letter-spacing: .3px; }
+.splash-btn-row { display: flex; flex-direction: column; gap: 10px; }
+.splash-btn-primary {
+  background: linear-gradient(135deg, var(--sage-400), var(--sage-600));
+  color: white; border: none; padding: 18px 24px;
+  border-radius: var(--r-md); font-family: var(--font-body);
+  font-size: 16px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 4px 24px rgba(78,125,69,.4);
+  transition: transform .12s, box-shadow .12s;
+  letter-spacing: -.2px;
+}
+.splash-btn-primary:active { transform: scale(.97); }
+.splash-btn-secondary {
+  background: rgba(255,255,255,.08); color: rgba(255,255,255,.7);
+  border: 1px solid rgba(255,255,255,.15); padding: 16px 24px;
+  border-radius: var(--r-md); font-family: var(--font-body);
+  font-size: 15px; font-weight: 500; cursor: pointer;
+  transition: background .15s;
+}
+.splash-btn-secondary:active { background: rgba(255,255,255,.14); }
+.splash-features {
+  display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap;
+}
+.splash-feat { font-size: 11px; color: rgba(255,255,255,.5); display: flex; align-items: center; gap: 4px; }
+.splash-feat::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--sage-400); }
+
+/* =========================================================
+   ONBOARDING SCREENS
+   ========================================================= */
+.ob-header {
+  padding: 20px 24px 0;
+  display: flex; flex-direction: column; gap: 20px;
+}
+.ob-back {
+  width: 36px; height: 36px; border-radius: 12px;
+  background: var(--surface-tinted); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+}
+.ob-body { padding: 24px; flex: 1; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; padding-bottom: 100px; }
+
+/* =========================================================
+   HOME SCREEN
+   ========================================================= */
+.home-head {
+  padding: 12px 20px 0;
+}
+.home-greeting-row {
+  display: flex; justify-content: space-between; align-items: center; padding: 4px 0 16px;
+}
+.greeting-text .micro { margin-bottom: 2px; }
+.greeting-text .heading { font-size: 22px; }
+.avatar-btn { position: relative; cursor: pointer; }
+.notif-badge {
+  position: absolute; top: -2px; right: -2px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--burg-500); border: 2px solid var(--bg);
+}
+
+/* Hero streak card */
+.streak-hero {
+  margin: 0 20px;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  position: relative;
+  height: 160px;
+  cursor: pointer;
+}
+.streak-hero-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--sage-800) 0%, var(--sage-600) 50%, var(--sage-400) 100%);
+}
+.streak-hero-pattern {
+  position: absolute; inset: 0; opacity: .07;
+  background: repeating-linear-gradient(-45deg, transparent, transparent 8px, rgba(255,255,255,.5) 8px, rgba(255,255,255,.5) 9px);
+}
+.streak-hero-content {
+  position: relative; z-index: 2; padding: 22px;
+  height: 100%; display: flex; flex-direction: column; justify-content: space-between;
+}
+.streak-num-row { display: flex; align-items: baseline; gap: 6px; }
+.streak-num { font-family: var(--font-display); font-size: 64px; color: white; line-height: 1; font-style: italic; }
+.streak-unit { font-size: 16px; color: rgba(255,255,255,.7); font-weight: 500; }
+.streak-subrow { display: flex; justify-content: space-between; align-items: flex-end; }
+.streak-label { font-size: 13px; color: rgba(255,255,255,.7); font-weight: 500; }
+.streak-dots { display: flex; gap: 4px; align-items: center; }
+.streak-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.25); }
+.streak-dot.active { background: white; }
+
+/* Week ring row */
+.week-rings {
+  padding: 0 20px;
+  display: flex; gap: 8px; align-items: center;
+}
+.ring-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.ring-svg { width: 36px; height: 36px; }
+.ring-day { font-size: 9px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: .5px; }
+.ring-val { font-size: 10px; font-weight: 700; color: var(--text-primary); }
+
+/* Section header row */
+.sec-row { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+.sec-see-all { font-size: 13px; font-weight: 600; color: var(--sage-600); cursor: pointer; }
+
+/* Workout scroll cards */
+.workout-chip {
+  min-width: 150px; height: 190px;
+  border-radius: var(--r-lg);
+  position: relative; overflow: hidden; cursor: pointer;
+  flex-shrink: 0;
+  transition: transform .15s;
+}
+.workout-chip:active { transform: scale(.97); }
+.wc-bg {
+  position: absolute; inset: 0;
+}
+.wc-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.7) 0%, rgba(0,0,0,.1) 60%); }
+.wc-body { position: absolute; inset: 0; padding: 14px; display: flex; flex-direction: column; justify-content: space-between; }
+.wc-emoji-big { font-size: 34px; }
+.wc-info {}
+.wc-name { font-size: 15px; font-weight: 700; color: white; margin-bottom: 2px; }
+.wc-meta { font-size: 11px; color: rgba(255,255,255,.7); font-weight: 500; }
+.wc-tag-chip { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,.15); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.2); border-radius: 100px; padding: 3px 8px; font-size: 9px; font-weight: 700; color: white; letter-spacing: .5px; text-transform: uppercase; }
+
+/* Today plan */
+.today-card { margin: 0 20px; }
+
+/* =========================================================
+   PROGRESS SCREEN
+   ========================================================= */
+.prog-head { padding: 12px 20px 0; }
+.prog-img-card {
+  margin: 0 20px;
+  height: 160px;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  position: relative;
+}
+.before-after-row { display: flex; gap: 3px; height: 100%; }
+.ba-panel { flex: 1; overflow: hidden; position: relative; }
+.ba-panel img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.8); }
+.ba-label { position: absolute; bottom: 8px; left: 8px; font-size: 9px; font-weight: 700; letter-spacing: .8px; color: white; text-transform: uppercase; background: rgba(0,0,0,.3); backdrop-filter: blur(6px); padding: 3px 7px; border-radius: 6px; }
+.ba-divider { width: 2px; background: white; position: relative; display: flex; align-items: center; justify-content: center; z-index: 2; }
+.ba-handle { width: 20px; height: 20px; border-radius: 50%; background: white; box-shadow: var(--shadow-md); display: flex; align-items: center; justify-content: center; }
+
+/* Chart */
+.chart-bars { display: flex; gap: 6px; align-items: flex-end; height: 80px; padding: 0 4px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.bar-body { width: 100%; border-radius: 5px 5px 0 0; min-height: 3px; transition: height .7s cubic-bezier(.4,0,.2,1); }
+.bar-label { font-size: 8px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; }
+
+/* =========================================================
+   COMMUNITY SCREEN
+   ========================================================= */
+.comm-head { padding: 12px 20px 0; }
+.comm-tabs { display: flex; gap: 6px; padding: 0 20px; overflow-x: auto; scrollbar-width: none; }
+.comm-tabs::-webkit-scrollbar { display: none; }
+.comm-tab { flex-shrink: 0; padding: 8px 16px; border-radius: 100px; border: 1.5px solid var(--border-strong); background: transparent; font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all .2s; }
+.comm-tab.active { background: var(--ink); border-color: var(--ink); color: white; }
+
+/* Achievement card */
+.achievement-card {
+  background: linear-gradient(135deg, var(--sage-50), var(--sage-100));
+  border: 1px solid var(--sage-200);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.ach-icon-box { width: 40px; height: 40px; border-radius: 12px; background: var(--sage-500); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.ach-val { font-size: 18px; font-weight: 800; color: var(--sage-700); letter-spacing: -.5px; }
+.ach-desc { font-size: 11px; color: var(--sage-600); font-weight: 500; margin-top: 1px; }
+
+/* =========================================================
+   PROFILE SCREEN
+   ========================================================= */
+.profile-hero {
+  background: linear-gradient(160deg, var(--sage-800) 0%, var(--sage-600) 100%);
+  padding: 20px 20px 28px;
+  position: relative;
+  overflow: hidden;
+}
+.profile-hero-pattern { position: absolute; inset: 0; opacity: .05; background: radial-gradient(circle 200px at 80% 50%, white, transparent); }
+.profile-edit-btn { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border-radius: 10px; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.profile-avatar-big { width: 72px; height: 72px; border-radius: 22px; background: var(--sage-300); box-shadow: 0 8px 24px rgba(0,0,0,.2); font-size: 28px; font-weight: 700; color: var(--sage-800); }
+.profile-stats-row { display: flex; gap: 0; margin-top: 16px; }
+.profile-stat { flex: 1; text-align: center; border-right: 1px solid rgba(255,255,255,.15); }
+.profile-stat:last-child { border-right: none; }
+.profile-stat-val { font-size: 22px; font-weight: 800; color: white; letter-spacing: -1px; }
+.profile-stat-label { font-size: 10px; color: rgba(255,255,255,.6); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+.profile-row { display: flex; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+.profile-row:last-child { border-bottom: none; }
+.profile-row-icon { width: 36px; height: 36px; border-radius: 11px; background: var(--surface-tinted); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.profile-row-label { flex: 1; font-size: 15px; font-weight: 500; color: var(--text-primary); }
+.profile-row-value { font-size: 13px; color: var(--text-secondary); }
+.profile-row-chevron { font-size: 12px; color: var(--text-tertiary); }
+
+/* =========================================================
+   ANIMATE IN
+   ========================================================= */
+@keyframes fadeUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+@keyframes scaleIn { from { opacity:0; transform: scale(.96); } to { opacity:1; transform: scale(1); } }
+.anim-1 { animation: fadeUp .5s .05s both; }
+.anim-2 { animation: fadeUp .5s .12s both; }
+.anim-3 { animation: fadeUp .5s .19s both; }
+.anim-4 { animation: fadeUp .5s .26s both; }
+.anim-5 { animation: fadeUp .5s .33s both; }
+
+/* Community: bodybuilder card */
+.comm-choice {
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  display: flex; gap: 14px; align-items: center;
+  cursor: pointer; transition: all .2s;
+}
+.comm-choice.sel { border-color: var(--sage-400); background: rgba(78,125,69,.04); }
+.comm-choice-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+
+/* =========================================================
+   DIVIDER
+   ========================================================= */
+.divider { height: 1px; background: var(--border); margin: 0 20px; }
+
+/* =========================================================
+   SECTION SPACING
+   ========================================================= */
+.section { padding: 0 20px; display: flex; flex-direction: column; gap: 12px; }
+.gap-8 { display: flex; flex-direction: column; gap: 8px; }
+.gap-12 { display: flex; flex-direction: column; gap: 12px; }
+.gap-16 { display: flex; flex-direction: column; gap: 16px; }
+.mt-4 { margin-top: 4px; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+.mt-24 { margin-top: 24px; }
+.row { display: flex; gap: 10px; }
+</style>
+</head>
+<body>
+<div class="shell">
+<div class="phone">
+  <div class="island"></div>
+
+  <!-- ===================== SPLASH ===================== -->
+  <div class="screen active" id="s-splash">
+    <div class="splash-bg"></div>
+    <div class="splash-pattern"></div>
+    <!-- hero number visual -->
+    <div style="position:absolute;top:100px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:0;z-index:2;">
+      <div style="font-family:'Instrument Serif',serif;font-style:italic;font-size:120px;color:rgba(255,255,255,.06);line-height:1;letter-spacing:-4px;user-select:none;">FORM</div>
+      <!-- floating cards -->
+      <div style="position:absolute;top:20px;left:28px;background:rgba(78,125,69,.25);backdrop-filter:blur(16px);border:1px solid rgba(78,125,69,.4);border-radius:16px;padding:12px 16px;color:white;width:130px;">
+        <div style="font-size:10px;opacity:.6;letter-spacing:.5px;text-transform:uppercase;font-weight:600;margin-bottom:4px;">Today's streak</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:32px;font-style:italic;line-height:1;display:flex;align-items:baseline;gap:4px;">7 <span style="font-size:14px;font-family:'Outfit',sans-serif;opacity:.7;font-style:normal;">days</span></div>
+        <div style="display:flex;gap:3px;margin-top:8px;">
+          <div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.8)"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.8)"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.8)"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4)"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4)"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4)"></div>
+          <div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.4)"></div>
+        </div>
+      </div>
+      <div style="position:absolute;top:80px;right:24px;background:rgba(114,47,61,.3);backdrop-filter:blur(16px);border:1px solid rgba(114,47,61,.5);border-radius:16px;padding:12px 14px;color:white;width:110px;">
+        <div style="font-size:10px;opacity:.6;letter-spacing:.5px;text-transform:uppercase;font-weight:600;margin-bottom:4px;">Progress</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:26px;font-style:italic;line-height:1;">−2 kg</div>
+        <div style="margin-top:8px;height:4px;border-radius:2px;background:rgba(255,255,255,.15);">
+          <div style="width:68%;height:100%;border-radius:2px;background:rgba(255,255,255,.6);"></div>
+        </div>
+      </div>
+    </div>
+    <div class="splash-content">
+      <div class="splash-logotype"><span>F</span>orm</div>
+      <div class="splash-tagline">Build the habit. Own your body.</div>
+      <div class="splash-features">
+        <div class="splash-feat">Smart Programs</div>
+        <div class="splash-feat">Progress Tracking</div>
+        <div class="splash-feat">Community</div>
+      </div>
+      <div class="splash-btn-row">
+        <button class="splash-btn-primary" onclick="goTo('s-ob1')">Get Started →</button>
+        <button class="splash-btn-secondary" onclick="goTo('s-home')">Log In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ONBOARD 1: NAME ===================== -->
+  <div class="screen" id="s-ob1">
+    <div class="status-bar"><span class="status-time">9:41</span><div class="status-icons"><span>●●●●</span><span>5G</span></div></div>
+    <div class="ob-header">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <button class="ob-back" onclick="goTo('s-splash')">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round"><path d="M11 4L6 9l5 5"/></svg>
+        </button>
+        <div class="ob-dots">
+          <div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div>
+        </div>
+        <div style="width:36px"></div>
+      </div>
+      <div>
+        <div class="micro" style="margin-bottom:6px;color:var(--sage-600)">Step 1 of 4</div>
+        <div class="display" style="font-size:32px">What's your<br><em>name?</em></div>
+        <div class="body" style="color:var(--text-secondary);margin-top:8px;font-size:14px">We'll personalise your experience to keep you on track.</div>
+      </div>
+    </div>
+    <div class="ob-body">
+      <div class="input-group">
+        <label class="input-label">Full name</label>
+        <input class="input-field" id="name-inp" type="text" placeholder="e.g. Catja Lindqvist" />
+      </div>
+      <div class="input-group">
+        <label class="input-label">Username</label>
+        <input class="input-field" type="text" placeholder="@catja95" />
+      </div>
+      <div style="flex:1"></div>
+      <div style="margin-top:auto;padding-top:20px">
+        <button class="btn btn-primary" onclick="handleName()">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ONBOARD 2: PROFILE ===================== -->
+  <div class="screen" id="s-ob2">
+    <div class="status-bar"><span class="status-time">9:41</span><div class="status-icons"><span>●●●●</span><span>5G</span></div></div>
+    <div class="ob-header">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <button class="ob-back" onclick="goTo('s-ob1')">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round"><path d="M11 4L6 9l5 5"/></svg>
+        </button>
+        <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot active"></div><div class="ob-dot"></div><div class="ob-dot"></div></div>
+        <div style="width:36px"></div>
+      </div>
+      <div>
+        <div class="micro" style="margin-bottom:6px;color:var(--sage-600)">Step 2 of 4</div>
+        <div class="display" style="font-size:32px">About<br><em>you</em></div>
+      </div>
+    </div>
+    <div class="ob-body">
+      <div class="input-group">
+        <label class="input-label">Date of birth</label>
+        <input class="input-field" type="date" />
+      </div>
+      <div class="input-group">
+        <label class="input-label">Gender</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="sel-card selected" id="g-f" onclick="selG('f')">
+            <div class="sel-check"><svg class="sel-check-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></div>
+            <div>
+              <div style="font-size:22px;margin-bottom:4px">♀</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-primary)">Female</div>
+            </div>
+          </div>
+          <div class="sel-card" id="g-m" onclick="selG('m')">
+            <div class="sel-check"><svg class="sel-check-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></div>
+            <div>
+              <div style="font-size:22px;margin-bottom:4px">♂</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-primary)">Male</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Email address</label>
+        <input class="input-field" type="email" placeholder="catja@example.com" />
+      </div>
+      <button class="btn btn-primary" onclick="goTo('s-ob3')">Continue</button>
+      <button class="btn btn-ghost" onclick="goTo('s-ob1')" style="margin-top:-8px">Back</button>
+    </div>
+  </div>
+
+  <!-- ===================== ONBOARD 3: ACTIVITY ===================== -->
+  <div class="screen" id="s-ob3">
+    <div class="status-bar"><span class="status-time">9:41</span><div class="status-icons"><span>●●●●</span><span>5G</span></div></div>
+    <div class="ob-header">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <button class="ob-back" onclick="goTo('s-ob2')">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round"><path d="M11 4L6 9l5 5"/></svg>
+        </button>
+        <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot active"></div><div class="ob-dot"></div></div>
+        <div style="width:36px"></div>
+      </div>
+      <div>
+        <div class="micro" style="margin-bottom:6px;color:var(--sage-600)">Step 3 of 4</div>
+        <div class="display" style="font-size:32px">Activity<br><em>level</em></div>
+        <div class="body" style="color:var(--text-secondary);margin-top:8px;font-size:14px">Be honest — we'll build around your real life.</div>
+      </div>
+    </div>
+    <div class="ob-body">
+      <div id="act-low" class="sel-card selected" onclick="selAct('low')" style="gap:12px">
+        <div class="sel-check"><svg class="sel-check-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <div style="font-size:15px;font-weight:700;color:var(--text-primary)">Sedentary</div>
+            <span class="pill" style="font-size:9px">Low</span>
+          </div>
+          <div style="font-size:13px;color:var(--text-secondary)">Desk job. Little to no spare-time exercise.</div>
+        </div>
+      </div>
+      <div id="act-mod" class="sel-card" onclick="selAct('mod')">
+        <div class="sel-check"><svg class="sel-check-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <div style="font-size:15px;font-weight:700;color:var(--text-primary)">Lightly Active</div>
+            <span class="pill" style="font-size:9px">Moderate</span>
+          </div>
+          <div style="font-size:13px;color:var(--text-secondary)">Teacher / retail. Walks a few times weekly.</div>
+        </div>
+      </div>
+      <div id="act-high" class="sel-card" onclick="selAct('high')">
+        <div class="sel-check"><svg class="sel-check-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <div style="font-size:15px;font-weight:700;color:var(--text-primary)">Active</div>
+            <span class="pill" style="font-size:9px">High</span>
+          </div>
+          <div style="font-size:13px;color:var(--text-secondary)">Works out 2–3× per week with purpose.</div>
+        </div>
+      </div>
+      <div id="act-vhigh" class="sel-card" onclick="selAct('vhigh')">
+        <div class="sel-check"><svg class="sel-check-icon" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <div style="font-size:15px;font-weight:700;color:var(--text-primary)">Very Active</div>
+            <span class="pill" style="font-size:9px;background:var(--sage-200)">Very High</span>
+          </div>
+          <div style="font-size:13px;color:var(--text-secondary)">Demanding job + trains 4–5× weekly.</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="goTo('s-ob4')">Continue</button>
+    </div>
+  </div>
+
+  <!-- ===================== ONBOARD 4: COMMUNITY + GOALS ===================== -->
+  <div class="screen" id="s-ob4">
+    <div class="status-bar"><span class="status-time">9:41</span><div class="status-icons"><span>●●●●</span><span>5G</span></div></div>
+    <div class="ob-header">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <button class="ob-back" onclick="goTo('s-ob3')">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round"><path d="M11 4L6 9l5 5"/></svg>
+        </button>
+        <div class="ob-dots"><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot"></div><div class="ob-dot active"></div></div>
+        <div style="width:36px"></div>
+      </div>
+      <div>
+        <div class="micro" style="margin-bottom:6px;color:var(--sage-600)">Step 4 of 4</div>
+        <div class="display" style="font-size:32px">Your<br><em>goal</em></div>
+      </div>
+    </div>
+    <div class="ob-body">
+      <div style="display:flex;gap:10px">
+        <div class="input-group" style="flex:1">
+          <label class="input-label">Current weight</label>
+          <input class="input-field" type="number" placeholder="70 kg" />
+        </div>
+        <div class="input-group" style="flex:1">
+          <label class="input-label">Goal weight</label>
+          <input class="input-field" type="number" placeholder="65 kg" />
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Choose your community</label>
+      </div>
+      <div class="comm-choice sel" id="c-body" onclick="selComm('body')">
+        <div class="comm-choice-icon" style="background:linear-gradient(135deg,var(--sage-700),var(--sage-500))">🏋️</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;margin-bottom:2px">Bodybuilding</div>
+          <div style="font-size:12px;color:var(--text-secondary)">Progressive overload, muscle focus</div>
+        </div>
+        <div id="cc-body" style="width:18px;height:18px;border-radius:50%;background:var(--sage-500);border:2px solid var(--sage-500);display:flex;align-items:center;justify-content:center">
+          <svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="1,4.5 3.5,7 8,1.5"/></svg>
+        </div>
+      </div>
+      <div class="comm-choice" id="c-health" onclick="selComm('health')">
+        <div class="comm-choice-icon" style="background:linear-gradient(135deg,#2d6a4f,#52b788)">🌿</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;margin-bottom:2px">Health & Wellness</div>
+          <div style="font-size:12px;color:var(--text-secondary)">Balance, wellbeing, sustainable habits</div>
+        </div>
+        <div id="cc-health" style="width:18px;height:18px;border-radius:50%;border:2px solid var(--border-strong)"></div>
+      </div>
+      <div class="comm-choice" id="c-motiv" onclick="selComm('motiv')">
+        <div class="comm-choice-icon" style="background:linear-gradient(135deg,var(--burg-600),var(--burg-400))">⚡</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:700;margin-bottom:2px">Motivation</div>
+          <div style="font-size:12px;color:var(--text-secondary)">Accountability, streaks, challenges</div>
+        </div>
+        <div id="cc-motiv" style="width:18px;height:18px;border-radius:50%;border:2px solid var(--border-strong)"></div>
+      </div>
+      <button class="btn btn-primary" onclick="finishOB()" style="margin-top:4px">Let's go 🌱</button>
+    </div>
+  </div>
+
+  <!-- ===================== HOME ===================== -->
+  <div class="screen" id="s-home">
+    <div class="status-bar"><span class="status-time" id="live-time">9:41</span><div class="status-icons"><span>●●●●</span><span>5G</span></div></div>
+    <div class="scroll-area">
+      <!-- greeting -->
+      <div class="home-head">
+        <div class="home-greeting-row anim-1">
+          <div class="greeting-text">
+            <div class="micro" style="color:var(--sage-600)">Good morning</div>
+            <div class="heading" id="home-name">Catja 👋</div>
+          </div>
+          <button class="avatar-btn" onclick="switchTab('profile')">
+            <div class="avatar" id="home-av" style="width:44px;height:44px;font-size:18px;border-radius:14px;box-shadow:var(--shadow-md)">C</div>
+            <div class="notif-badge"></div>
+          </button>
+        </div>
+      </div>
+
+      <!-- streak hero card -->
+      <div class="streak-hero anim-2" onclick="switchTab('progress')">
+        <div class="streak-hero-bg"></div>
+        <div class="streak-hero-pattern"></div>
+        <div class="streak-hero-content">
+          <div>
+            <div class="micro" style="color:rgba(255,255,255,.6);margin-bottom:4px">Current Streak</div>
+            <div class="streak-num-row">
+              <div class="streak-num">7</div>
+              <div class="streak-unit">days</div>
+            </div>
+          </div>
+          <div class="streak-subrow">
+            <div class="streak-label">Keep it going 🔥</div>
+            <div class="streak-dots">
+              <div class="streak-dot active"></div><div class="streak-dot active"></div><div class="streak-dot active"></div>
+              <div class="streak-dot active"></div><div class="streak-dot active"></div><div class="streak-dot active"></div>
+              <div class="streak-dot active"></div><div class="streak-dot"></div><div class="streak-dot"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- metrics row -->
+      <div class="row mt-16 anim-3" style="padding:0 20px">
+        <div class="metric">
+          <div class="metric-label">Workouts</div>
+          <div class="metric-val">14</div>
+          <div class="metric-badge">↑ 3 this week</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Progress</div>
+          <div class="metric-val">−2<span>kg</span></div>
+          <div class="metric-badge">↓ on track</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Next session</div>
+          <div class="metric-val" style="font-size:18px">Today</div>
+          <div style="display:flex;align-items:center;gap:4px;margin-top:4px">
+            <div style="width:6px;height:6px;border-radius:50%;background:var(--sage-500)"></div>
+            <span style="font-size:10px;color:var(--sage-600);font-weight:600">Push Day A</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- week rings -->
+      <div class="mt-20 anim-3">
+        <div class="sec-row" style="margin-bottom:12px">
+          <div class="heading" style="font-size:16px">This Week</div>
+          <div class="caption" style="color:var(--sage-600)">4 / 5 days</div>
+        </div>
+        <div class="week-rings">
+          <!-- each day ring -->
+          <div class="ring-wrap" onclick="switchTab('progress')">
+            <svg class="ring-svg" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--sage-100)" stroke-width="4"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--sage-500)" stroke-width="4" stroke-dasharray="88 88" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+            </svg>
+            <div class="ring-day">Mon</div>
+            <div class="ring-val">✓</div>
+          </div>
+          <div class="ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--sage-100)" stroke-width="4"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--sage-500)" stroke-width="4" stroke-dasharray="88 88" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+            </svg>
+            <div class="ring-day">Tue</div>
+            <div class="ring-val">✓</div>
+          </div>
+          <div class="ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--sage-100)" stroke-width="4"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--warm-gray)" stroke-width="4" stroke-dasharray="40 88" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+            </svg>
+            <div class="ring-day">Wed</div>
+            <div class="ring-val" style="color:var(--text-tertiary)">—</div>
+          </div>
+          <div class="ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--sage-100)" stroke-width="4"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--sage-500)" stroke-width="4" stroke-dasharray="88 88" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+            </svg>
+            <div class="ring-day">Thu</div>
+            <div class="ring-val">✓</div>
+          </div>
+          <div class="ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--sage-100)" stroke-width="4"/>
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--sage-500)" stroke-width="4" stroke-dasharray="88 88" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+            </svg>
+            <div class="ring-day">Fri</div>
+            <div class="ring-val">✓</div>
+          </div>
+          <div class="ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--sage-100)" stroke-width="4"/>
+            </svg>
+            <div class="ring-day">Sat</div>
+            <div class="ring-val" style="color:var(--text-tertiary)">—</div>
+          </div>
+          <div class="ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="var(--sage-100)" stroke-width="4"/>
+            </svg>
+            <div class="ring-day">Sun</div>
+            <div class="ring-val" style="color:var(--text-tertiary)">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- workout programs -->
+      <div class="mt-20 anim-4">
+        <div class="sec-row" style="margin-bottom:12px">
+          <div class="heading" style="font-size:16px">Programs</div>
+          <div class="sec-see-all">See all</div>
+        </div>
+        <div class="h-scroll">
+          <div class="workout-chip" style="min-width:155px" onclick="switchTab('detail')">
+            <div class="wc-bg" style="background:linear-gradient(145deg,#2e4f28,#6d9963)"></div>
+            <div class="wc-overlay"></div>
+            <div class="wc-tag-chip">Today</div>
+            <div class="wc-body">
+              <div class="wc-emoji-big">💪</div>
+              <div class="wc-info">
+                <div class="wc-name">Push Day</div>
+                <div class="wc-meta">6 exercises · 45 min</div>
+              </div>
+            </div>
+          </div>
+          <div class="workout-chip" style="min-width:155px" onclick="switchTab('detail')">
+            <div class="wc-bg" style="background:linear-gradient(145deg,#3d2b1f,#8b5e3c)"></div>
+            <div class="wc-overlay"></div>
+            <div class="wc-body">
+              <div class="wc-emoji-big">🦵</div>
+              <div class="wc-info">
+                <div class="wc-name">Leg Power</div>
+                <div class="wc-meta">5 exercises · 50 min</div>
+              </div>
+            </div>
+          </div>
+          <div class="workout-chip" style="min-width:155px" onclick="switchTab('detail')">
+            <div class="wc-bg" style="background:linear-gradient(145deg,#1a2a3a,#4a7fa8)"></div>
+            <div class="wc-overlay"></div>
+            <div class="wc-body">
+              <div class="wc-emoji-big">🏃</div>
+              <div class="wc-info">
+                <div class="wc-name">Cardio HIIT</div>
+                <div class="wc-meta">8 rounds · 30 min</div>
+              </div>
+            </div>
+          </div>
+          <div class="workout-chip" style="min-width:155px" onclick="switchTab('detail')">
+            <div class="wc-bg" style="background:linear-gradient(145deg,#2a1f3a,#7a5a9e)"></div>
+            <div class="wc-overlay"></div>
+            <div class="wc-body">
+              <div class="wc-emoji-big">🧘</div>
+              <div class="wc-info">
+                <div class="wc-name">Stretch & Core</div>
+                <div class="wc-meta">7 exercises · 25 min</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- today's plan -->
+      <div class="mt-20 anim-5">
+        <div class="sec-row" style="margin-bottom:12px">
+          <div class="heading" style="font-size:16px">Today's Plan</div>
+          <span class="pill">Push Day A</span>
+        </div>
+        <div class="today-card card">
+          <div style="padding:16px 16px 0;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:12px">
+            <div style="font-size:14px;font-weight:600;color:var(--text-secondary)">6 exercises remaining</div>
+            <div style="font-size:12px;font-weight:600;background:var(--sage-100);color:var(--sage-700);padding:4px 10px;border-radius:100px">45 min</div>
+          </div>
+          <!-- ex rows -->
+          <div style="padding:0 16px">
+            <div class="ex-row" onclick="switchTab('detail')">
+              <div class="ex-icon-box done">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="2,8 6,12 14,4"/></svg>
+              </div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:600;text-decoration:line-through;color:var(--text-tertiary)">Bench Press</div>
+                <div class="caption">4 × 8–10 reps</div>
+              </div>
+              <div style="font-size:11px;font-weight:700;color:var(--sage-500);background:var(--sage-100);padding:2px 7px;border-radius:6px">PR: 80kg</div>
+            </div>
+            <div class="ex-row" onclick="switchTab('detail')">
+              <div class="ex-icon-box done">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><polyline points="2,8 6,12 14,4"/></svg>
+              </div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:600;text-decoration:line-through;color:var(--text-tertiary)">Overhead Press</div>
+                <div class="caption">3 × 10–12 reps</div>
+              </div>
+              <div style="font-size:11px;font-weight:700;color:var(--sage-500);background:var(--sage-100);padding:2px 7px;border-radius:6px">PR: 50kg</div>
+            </div>
+            <div class="ex-row" onclick="switchTab('detail')" style="background:rgba(78,125,69,.04);margin:0 -16px;padding:14px 16px;border-radius:0">
+              <div class="ex-icon-box" style="border:2px solid var(--sage-400)">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--sage-500)" stroke-width="2" stroke-linecap="round"><polygon points="5,3 13,8 5,13"/></svg>
+              </div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:700;color:var(--sage-700)">Incline DB Press</div>
+                <div class="caption">3 × 10–12 reps</div>
+              </div>
+              <div style="font-size:11px;font-weight:600;color:var(--sage-600)">Up next →</div>
+            </div>
+            <div class="ex-row">
+              <div class="ex-icon-box"><span style="font-size:16px;color:var(--text-tertiary)">4</span></div>
+              <div style="flex:1"><div style="font-size:14px;font-weight:600">Lateral Raises</div><div class="caption">4 × 15 reps</div></div>
+            </div>
+            <div class="ex-row">
+              <div class="ex-icon-box"><span style="font-size:16px;color:var(--text-tertiary)">5</span></div>
+              <div style="flex:1"><div style="font-size:14px;font-weight:600">Tricep Dips</div><div class="caption">3 × failure</div></div>
+            </div>
+          </div>
+          <div style="padding:14px 16px">
+            <button class="btn btn-primary" onclick="switchTab('detail')">Continue Workout →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PT tip banner -->
+      <div class="mt-16 anim-5" style="padding:0 20px;">
+        <div style="background:linear-gradient(135deg,rgba(114,47,61,.08),rgba(114,47,61,.04));border:1px solid rgba(114,47,61,.15);border-radius:var(--r-md);padding:14px 16px;display:flex;gap:12px;align-items:flex-start">
+          <div style="font-size:24px">💡</div>
+          <div style="flex:1">
+            <div style="font-size:11px;font-weight:700;color:var(--burg-500);letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px">PT Tip of the day</div>
+            <div style="font-size:13px;color:var(--text-primary);line-height:1.5">Film your last set to gauge how close you are to failure — slower reps = closer to max.</div>
+          </div>
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+    <!-- bottom nav -->
+    <div class="bottom-nav" id="nav-home">
+      <button class="nav-item active" onclick="switchTab('home')" id="ni-home">
+        <div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="nav-item" onclick="switchTab('progress')" id="ni-prog">
+        <div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg></div>
+        <span class="nav-label">Progress</span>
+      </button>
+      <button class="nav-add" onclick="switchTab('detail')">
+        <div class="nav-add-circle"><span class="nav-add-plus">+</span></div>
+        <span class="nav-add-label">Workout</span>
+      </button>
+      <button class="nav-item" onclick="switchTab('community')" id="ni-comm">
+        <div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <span class="nav-label">Social</span>
+      </button>
+      <button class="nav-item" onclick="switchTab('profile')" id="ni-prof">
+        <div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <span class="nav-label">Profile</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== WORKOUT DETAIL ===================== -->
+  <div class="screen" id="s-detail">
+    <div style="background:linear-gradient(160deg,var(--sage-800),var(--sage-500));padding:52px 20px 24px;position:relative;overflow:hidden;flex-shrink:0">
+      <div style="position:absolute;inset:0;opacity:.07;background:radial-gradient(circle 200px at 80% 30%,white,transparent)"></div>
+      <button onclick="switchTab('home')" style="position:relative;z-index:2;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:12px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:16px">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg>
+      </button>
+      <div style="position:relative;z-index:2">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:6px">STRENGTH · UPPER BODY</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:36px;font-style:italic;color:white;line-height:1.1;margin-bottom:12px">Push Day A</div>
+        <div style="display:flex;gap:16px">
+          <div style="font-size:13px;color:rgba(255,255,255,.75);font-weight:500">⏱ 45 min</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.75);font-weight:500">💪 6 exercises</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.75);font-weight:500">🏋 Intermediate</div>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <!-- progress mini -->
+      <div style="padding:16px 20px 0">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <div style="font-size:13px;font-weight:600;color:var(--text-secondary)">2 of 6 complete</div>
+          <div style="font-size:13px;font-weight:700;color:var(--sage-600)">33%</div>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width:33%"></div></div>
+      </div>
+      <!-- exercises -->
+      <div style="padding:16px 20px;display:flex;flex-direction:column;gap:12px">
+        <!-- completed ex card -->
+        <div class="card" style="padding:16px;opacity:.7">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <div style="width:24px;height:24px;border-radius:8px;background:var(--sage-500);display:flex;align-items:center;justify-content:center"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="1,5 3.5,7.5 9,2"/></svg></div>
+                <div style="font-size:15px;font-weight:700;text-decoration:line-through;color:var(--text-tertiary)">Bench Press</div>
+                <span class="pill" style="font-size:9px">Chest</span>
+              </div>
+              <div style="display:flex;gap:16px">
+                <div><div class="micro">Sets</div><div style="font-size:18px;font-weight:800;letter-spacing:-0.5px">4</div></div>
+                <div><div class="micro">Reps</div><div style="font-size:18px;font-weight:800;letter-spacing:-0.5px">8–10</div></div>
+                <div><div class="micro">Last PR</div><div style="font-size:18px;font-weight:800;letter-spacing:-0.5px;color:var(--sage-600)">80kg</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- active ex card -->
+        <div style="background:linear-gradient(135deg,rgba(78,125,69,.06),rgba(78,125,69,.1));border:2px solid var(--sage-400);border-radius:var(--r-lg);padding:18px;box-shadow:0 0 0 4px rgba(78,125,69,.08)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <div style="width:24px;height:24px;border-radius:8px;background:var(--sage-500);display:flex;align-items:center;justify-content:center"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polygon points="3,2 9,5 3,8"/></svg></div>
+            <div style="font-size:16px;font-weight:800;color:var(--sage-700)">Overhead Press</div>
+            <span class="pill" style="font-size:9px">Active</span>
+          </div>
+          <div style="display:flex;gap:12px;margin-bottom:14px">
+            <div class="metric" style="border-color:var(--sage-200)"><div class="micro">Sets</div><div class="metric-val">3</div></div>
+            <div class="metric" style="border-color:var(--sage-200)"><div class="micro">Reps</div><div class="metric-val" style="font-size:18px">10–12</div></div>
+            <div class="metric" style="border-color:var(--sage-200)"><div class="micro">Last PR</div><div class="metric-val" style="color:var(--sage-600)">50<span>kg</span></div></div>
+          </div>
+          <!-- set tracker -->
+          <div style="display:flex;gap:8px">
+            <button style="flex:1;padding:12px;border-radius:12px;background:var(--sage-500);border:none;color:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Set 1 ✓</button>
+            <button style="flex:1;padding:12px;border-radius:12px;background:var(--sage-500);border:none;color:white;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Set 2 ✓</button>
+            <button style="flex:1;padding:12px;border-radius:12px;background:white;border:2px solid var(--sage-300);color:var(--sage-600);font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer">Set 3</button>
+          </div>
+        </div>
+        <!-- upcoming -->
+        <div class="card" style="padding:16px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <div style="width:24px;height:24px;border-radius:8px;background:var(--surface-tinted);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-secondary)">3</div>
+            <div style="font-size:15px;font-weight:700">Incline DB Press</div>
+            <span class="pill pill-neutral" style="font-size:9px">Up next</span>
+          </div>
+          <div style="display:flex;gap:16px">
+            <div><div class="micro">Sets</div><div style="font-size:16px;font-weight:800">3</div></div>
+            <div><div class="micro">Reps</div><div style="font-size:16px;font-weight:800">10–12</div></div>
+            <div><div class="micro">Last</div><div style="font-size:16px;font-weight:800">22kg</div></div>
+          </div>
+        </div>
+        <div class="card" style="padding:16px;opacity:.6">
+          <div style="display:flex;align-items:center;gap:8px"><div style="width:24px;height:24px;border-radius:8px;background:var(--surface-tinted);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-tertiary)">4</div><div style="font-size:15px;font-weight:600;color:var(--text-secondary)">Lateral Raises — 4 × 15</div></div>
+        </div>
+        <div class="card" style="padding:16px;opacity:.6">
+          <div style="display:flex;align-items:center;gap:8px"><div style="width:24px;height:24px;border-radius:8px;background:var(--surface-tinted);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-tertiary)">5</div><div style="font-size:15px;font-weight:600;color:var(--text-secondary)">Tricep Dips — 3 × failure</div></div>
+        </div>
+        <div class="card" style="padding:16px;opacity:.6">
+          <div style="display:flex;align-items:center;gap:8px"><div style="width:24px;height:24px;border-radius:8px;background:var(--surface-tinted);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--text-tertiary)">6</div><div style="font-size:15px;font-weight:600;color:var(--text-secondary)">Cable Flyes — 3 × 12</div></div>
+        </div>
+        <button class="btn btn-primary">Complete Set 3 →</button>
+      </div>
+    </div>
+    <div class="bottom-nav" style="padding-top:10px">
+      <button class="nav-item" onclick="switchTab('home')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div><span class="nav-label">Home</span></button>
+      <button class="nav-item" onclick="switchTab('progress')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg></div><span class="nav-label">Progress</span></button>
+      <button class="nav-add" onclick="switchTab('detail')"><div class="nav-add-circle"><span class="nav-add-plus">+</span></div><span class="nav-add-label">Workout</span></button>
+      <button class="nav-item" onclick="switchTab('community')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="nav-label">Social</span></button>
+      <button class="nav-item active" onclick="switchTab('detail')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/></svg></div><span class="nav-label">Workout</span></button>
+    </div>
+  </div>
+
+  <!-- ===================== PROGRESS ===================== -->
+  <div class="screen" id="s-progress">
+    <div class="status-bar"><span class="status-time">9:41</span><div class="status-icons"><span>●●●●</span><span>5G</span></div></div>
+    <div class="prog-head">
+      <div class="micro" style="color:var(--sage-600);margin-bottom:4px">YOUR JOURNEY</div>
+      <div class="display" style="font-size:30px">Progress</div>
+    </div>
+    <div class="scroll-area" style="padding-top:16px">
+      <!-- before/after placeholder -->
+      <div class="prog-img-card anim-1">
+        <div class="before-after-row">
+          <div class="ba-panel" style="background:linear-gradient(135deg,var(--sage-200),var(--sage-400))">
+            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:.5">👤</div>
+            <div class="ba-label">Before</div>
+          </div>
+          <div class="ba-divider"><div class="ba-handle"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--sage-600)" stroke-width="1.5"><path d="M3,5h4M5,3l2,2-2,2"/></svg></div></div>
+          <div class="ba-panel" style="background:linear-gradient(135deg,var(--sage-400),var(--sage-600))">
+            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:.5">👤</div>
+            <div class="ba-label" style="right:8px;left:auto">Now</div>
+          </div>
+        </div>
+      </div>
+      <!-- metrics grid -->
+      <div class="section mt-16 anim-2">
+        <div class="row">
+          <div class="metric">
+            <div class="metric-label">Weight</div>
+            <div class="metric-val">68<span> kg</span></div>
+            <div class="metric-badge">↓ 2kg</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Goal</div>
+            <div class="metric-val">65<span> kg</span></div>
+            <div style="margin-top:6px"><div class="progress-track" style="height:4px"><div class="progress-fill" style="width:68%"></div></div><div style="font-size:9px;font-weight:600;color:var(--text-tertiary);margin-top:3px">68% to goal</div></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="metric"><div class="metric-label">Bicep</div><div class="metric-val">31<span>cm</span></div><div class="metric-badge">↑ 0.8cm</div></div>
+          <div class="metric"><div class="metric-label">Waist</div><div class="metric-val">76<span>cm</span></div><div class="metric-badge">↓ 1.5cm</div></div>
+          <div class="metric"><div class="metric-label">Chest</div><div class="metric-val">94<span>cm</span></div><div class="metric-badge" style="background:var(--parchment);color:var(--stone)">→ 0</div></div>
+        </div>
+      </div>
+      <!-- weekly chart -->
+      <div class="section mt-20 anim-3">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="heading" style="font-size:16px">Weekly Activity</div>
+          <div class="caption" style="color:var(--sage-600)">5 sessions</div>
+        </div>
+        <div class="card" style="padding:16px">
+          <div class="chart-bars">
+            <div class="bar-col"><div class="bar-body" style="height:60%;background:var(--sage-500);border-radius:4px 4px 0 0"></div><div class="bar-label">M</div></div>
+            <div class="bar-col"><div class="bar-body" style="height:80%;background:var(--sage-500);border-radius:4px 4px 0 0"></div><div class="bar-label">T</div></div>
+            <div class="bar-col"><div class="bar-body" style="height:15%;background:var(--sage-200);border-radius:4px 4px 0 0"></div><div class="bar-label">W</div></div>
+            <div class="bar-col"><div class="bar-body" style="height:100%;background:var(--sage-600);border-radius:4px 4px 0 0"></div><div class="bar-label">T</div></div>
+            <div class="bar-col"><div class="bar-body" style="height:70%;background:var(--sage-500);border-radius:4px 4px 0 0"></div><div class="bar-label">F</div></div>
+            <div class="bar-col"><div class="bar-body" style="height:0%;background:var(--sage-200);border-radius:4px 4px 0 0;min-height:3px"></div><div class="bar-label">S</div></div>
+            <div class="bar-col"><div class="bar-body" style="height:50%;background:var(--sage-400);border-radius:4px 4px 0 0"></div><div class="bar-label">S</div></div>
+          </div>
+        </div>
+      </div>
+      <!-- personal bests -->
+      <div class="section mt-20 anim-4">
+        <div class="heading" style="font-size:16px">Personal Bests 🏆</div>
+        <div class="card">
+          <div style="padding:0 16px">
+            <div class="ex-row"><div class="ex-icon-box" style="background:var(--parchment)">🏋️</div><div style="flex:1"><div style="font-size:14px;font-weight:700">Bench Press</div><div class="caption">80kg × 8 reps</div></div><div style="font-size:10px;color:var(--text-tertiary)">2 wks ago</div></div>
+            <div class="ex-row"><div class="ex-icon-box" style="background:var(--parchment)">🦵</div><div style="flex:1"><div style="font-size:14px;font-weight:700">Squat</div><div class="caption">100kg × 5 reps</div></div><div style="font-size:10px;color:var(--text-tertiary)">1 wk ago</div></div>
+            <div class="ex-row" style="border:none"><div class="ex-icon-box" style="background:var(--parchment)">💀</div><div style="flex:1"><div style="font-size:14px;font-weight:700">Deadlift</div><div class="caption">120kg × 3 reps</div></div><div style="font-size:10px;color:var(--text-tertiary)">3 days ago</div></div>
+          </div>
+        </div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="switchTab('home')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div><span class="nav-label">Home</span></button>
+      <button class="nav-item active" onclick="switchTab('progress')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg></div><span class="nav-label">Progress</span></button>
+      <button class="nav-add" onclick="switchTab('detail')"><div class="nav-add-circle"><span class="nav-add-plus">+</span></div><span class="nav-add-label">Workout</span></button>
+      <button class="nav-item" onclick="switchTab('community')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="nav-label">Social</span></button>
+      <button class="nav-item" onclick="switchTab('profile')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="nav-label">Profile</span></button>
+    </div>
+  </div>
+
+  <!-- ===================== COMMUNITY ===================== -->
+  <div class="screen" id="s-community">
+    <div class="status-bar"><span class="status-time">9:41</span><div class="status-icons"><span>●●●●</span><span>5G</span></div></div>
+    <div class="comm-head">
+      <div class="micro" style="color:var(--sage-600);margin-bottom:4px">CONNECT</div>
+      <div class="display" style="font-size:30px;margin-bottom:14px">Community</div>
+    </div>
+    <div class="comm-tabs mt-4" style="margin-bottom:16px">
+      <button class="comm-tab active">Feed</button>
+      <button class="comm-tab">Challenges</button>
+      <button class="comm-tab">Leaderboard</button>
+    </div>
+    <div class="scroll-area" style="padding-top:0">
+      <div style="padding:0 20px;display:flex;flex-direction:column;gap:14px">
+        <!-- post 1 -->
+        <div class="post anim-1">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="avatar" style="width:40px;height:40px;border-radius:13px;font-size:18px;background:var(--sage-200)">💪</div>
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:700">Liam_Lifts</div>
+              <div class="caption">2h ago · Bodybuilding</div>
+            </div>
+            <button style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-tertiary)">···</button>
+          </div>
+          <div class="achievement-card">
+            <div class="ach-icon-box">🏆</div>
+            <div>
+              <div class="ach-val">120 kg Squat</div>
+              <div class="ach-desc">New personal record</div>
+            </div>
+            <div style="margin-left:auto"><span class="pill">PR</span></div>
+          </div>
+          <div class="body" style="font-size:14px">Finally hit 120 on squat! The progressive overload method in the app is genuinely working 🔥</div>
+          <div style="display:flex;gap:4px">
+            <button class="post-action">❤️ 24</button>
+            <button class="post-action">💬 8</button>
+            <button class="post-action">↗ Share</button>
+          </div>
+        </div>
+        <!-- post 2 -->
+        <div class="post anim-2">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="avatar" style="width:40px;height:40px;border-radius:13px;font-size:18px;background:var(--parchment)">🌿</div>
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:700">catja95</div>
+              <div class="caption">5h ago · Health</div>
+            </div>
+          </div>
+          <div class="body" style="font-size:14px;line-height:1.6">Week 6 check-in ✅ Might not be the heaviest lifter, but I haven't missed a scheduled workout in 6 weeks. Structure is everything.</div>
+          <div class="achievement-card">
+            <div class="ach-icon-box" style="background:var(--burg-500)">🔥</div>
+            <div>
+              <div class="ach-val" style="color:var(--burg-600)">6-Week Streak</div>
+              <div class="ach-desc" style="color:var(--burg-600)">Consistency unlocked</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:4px">
+            <button class="post-action">❤️ 41</button>
+            <button class="post-action">💬 12</button>
+            <button class="post-action">↗ Share</button>
+          </div>
+        </div>
+        <!-- PT tip post -->
+        <div class="post anim-3" style="border-color:rgba(78,125,69,.2);background:rgba(78,125,69,.03)">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="avatar" style="width:40px;height:40px;border-radius:13px;font-size:18px;background:var(--sage-200)">🎓</div>
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:700">FormCoach</div>
+              <div class="caption">8h ago · <span style="color:var(--sage-600);font-weight:600">PT Tips</span></div>
+            </div>
+            <span class="pill" style="font-size:9px">Expert</span>
+          </div>
+          <div class="body" style="font-size:14px;line-height:1.6">Film your last set to gauge proximity to failure. Slower rep tempo = closer to true max. This is the most underused self-coaching technique.</div>
+          <div style="display:flex;gap:4px">
+            <button class="post-action">❤️ 88</button>
+            <button class="post-action">💬 19</button>
+            <button class="post-action">💾 Save</button>
+          </div>
+        </div>
+        <div style="height:20px"></div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="switchTab('home')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div><span class="nav-label">Home</span></button>
+      <button class="nav-item" onclick="switchTab('progress')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg></div><span class="nav-label">Progress</span></button>
+      <button class="nav-add" onclick="switchTab('detail')"><div class="nav-add-circle"><span class="nav-add-plus">+</span></div><span class="nav-add-label">Workout</span></button>
+      <button class="nav-item active" onclick="switchTab('community')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="nav-label">Social</span></button>
+      <button class="nav-item" onclick="switchTab('profile')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="nav-label">Profile</span></button>
+    </div>
+  </div>
+
+  <!-- ===================== PROFILE ===================== -->
+  <div class="screen" id="s-profile">
+    <div class="profile-hero" style="padding-top:52px">
+      <div class="profile-hero-pattern"></div>
+      <button class="profile-edit-btn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"><path d="M2 10L10 2l2 2-8 8H2v-2z"/></svg></button>
+      <div style="display:flex;align-items:center;gap:14px;position:relative;z-index:2;margin-bottom:16px">
+        <div class="avatar profile-avatar-big">C</div>
+        <div>
+          <div style="font-family:'Instrument Serif',serif;font-size:22px;font-style:italic;color:white" id="prof-name">Catja Lindqvist</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.6);font-weight:500;margin-top:2px">@catja95 · Bodybuilding</div>
+        </div>
+      </div>
+      <div class="profile-stats-row" style="position:relative;z-index:2">
+        <div class="profile-stat"><div class="profile-stat-val">14</div><div class="profile-stat-label">Workouts</div></div>
+        <div class="profile-stat"><div class="profile-stat-val">7</div><div class="profile-stat-label">Streak</div></div>
+        <div class="profile-stat"><div class="profile-stat-val">2kg</div><div class="profile-stat-label">Lost</div></div>
+        <div class="profile-stat"><div class="profile-stat-val">6 wk</div><div class="profile-stat-label">Member</div></div>
+      </div>
+    </div>
+    <div class="scroll-area" style="padding-top:16px">
+      <!-- community badge -->
+      <div style="padding:0 20px;margin-bottom:12px">
+        <div style="background:linear-gradient(135deg,var(--sage-50),var(--sage-100));border:1px solid var(--sage-200);border-radius:var(--r-md);padding:14px 16px;display:flex;gap:12px;align-items:center">
+          <div style="width:40px;height:40px;border-radius:12px;background:var(--sage-500);display:flex;align-items:center;justify-content:center;font-size:18px">🏋️</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--sage-700)">Bodybuilding Community</div>
+            <div style="font-size:11px;color:var(--sage-600);margin-top:1px">Progressive overload · muscle focus</div>
+          </div>
+        </div>
+      </div>
+      <!-- settings -->
+      <div style="padding:0 20px">
+        <div class="micro" style="margin-bottom:8px;margin-top:4px">Personal Info</div>
+        <div class="card" style="padding:0 16px">
+          <div class="profile-row"><div class="profile-row-icon">⚖️</div><div class="profile-row-label">Current Weight</div><div class="profile-row-value">68 kg</div><div class="profile-row-chevron">›</div></div>
+          <div class="profile-row"><div class="profile-row-icon">🎯</div><div class="profile-row-label">Goal Weight</div><div class="profile-row-value">65 kg</div><div class="profile-row-chevron">›</div></div>
+          <div class="profile-row" style="border:none"><div class="profile-row-icon">⚡</div><div class="profile-row-label">Activity Level</div><div class="profile-row-value">High</div><div class="profile-row-chevron">›</div></div>
+        </div>
+        <div class="micro" style="margin-bottom:8px;margin-top:16px">Settings</div>
+        <div class="card" style="padding:0 16px">
+          <div class="profile-row"><div class="profile-row-icon">🔔</div><div class="profile-row-label">Workout Reminders</div><div style="width:44px;height:24px;background:var(--sage-500);border-radius:100px;position:relative;cursor:pointer"><div style="width:20px;height:20px;background:white;border-radius:50%;position:absolute;top:2px;right:2px;box-shadow:0 1px 4px rgba(0,0,0,.2)"></div></div></div>
+          <div class="profile-row"><div class="profile-row-icon">📏</div><div class="profile-row-label">Measurement Schedule</div><div class="profile-row-value">3 weeks</div><div class="profile-row-chevron">›</div></div>
+          <div class="profile-row" style="border:none"><div class="profile-row-icon">🌍</div><div class="profile-row-label">Units</div><div class="profile-row-value">Metric (kg/cm)</div><div class="profile-row-chevron">›</div></div>
+        </div>
+        <div class="micro" style="margin-bottom:8px;margin-top:16px">Account</div>
+        <div class="card" style="padding:0 16px">
+          <div class="profile-row" onclick="goTo('s-splash')"><div class="profile-row-icon">🚪</div><div class="profile-row-label" style="color:var(--burg-500)">Sign Out</div><div class="profile-row-chevron">›</div></div>
+        </div>
+        <div style="height:20px"></div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="switchTab('home')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div><span class="nav-label">Home</span></button>
+      <button class="nav-item" onclick="switchTab('progress')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg></div><span class="nav-label">Progress</span></button>
+      <button class="nav-add" onclick="switchTab('detail')"><div class="nav-add-circle"><span class="nav-add-plus">+</span></div><span class="nav-add-label">Workout</span></button>
+      <button class="nav-item" onclick="switchTab('community')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><span class="nav-label">Social</span></button>
+      <button class="nav-item active" onclick="switchTab('profile')"><div class="nav-icon-wrap"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><span class="nav-label">Profile</span></button>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+</div><!-- /shell -->
+
+<script>
+const TAB_MAP = { home:'s-home', progress:'s-progress', community:'s-community', profile:'s-profile', detail:'s-detail' };
+let currentScreen = 's-splash';
+
+function goTo(id) {
+  const cur = document.getElementById(currentScreen);
+  const nxt = document.getElementById(id);
+  if (!nxt || id === currentScreen) return;
+  cur.classList.remove('active');
+  cur.classList.add('exit');
+  setTimeout(() => cur.classList.remove('exit'), 300);
+  nxt.classList.add('active');
+  currentScreen = id;
+}
+
+function switchTab(tab) {
+  goTo(TAB_MAP[tab] || tab);
+}
+
+function handleName() {
+  const v = document.getElementById('name-inp').value.trim();
+  if (v) {
+    const first = v.split(' ')[0];
+    document.getElementById('home-name').textContent = first + ' 👋';
+    const av = first[0].toUpperCase();
+    document.getElementById('home-av').textContent = av;
+    document.querySelector('.profile-avatar-big').textContent = av;
+  }
+  goTo('s-ob2');
+}
+
+function selG(g) {
+  ['f','m'].forEach(x => document.getElementById('g-'+x).classList.toggle('selected', x===g));
+}
+
+function selAct(a) {
+  ['low','mod','high','vhigh'].forEach(x => document.getElementById('act-'+x).classList.toggle('selected', x===a));
+}
+
+function selComm(c) {
+  ['body','health','motiv'].forEach(x => {
+    const card = document.getElementById('c-'+x);
+    const chk = document.getElementById('cc-'+x);
+    if (x===c) {
+      card.classList.add('sel');
+      chk.style.background = 'var(--sage-500)';
+      chk.style.borderColor = 'var(--sage-500)';
+      chk.innerHTML = '<svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="1,4.5 3.5,7 8,1.5"/></svg>';
+    } else {
+      card.classList.remove('sel');
+      chk.style.background = 'transparent';
+      chk.style.borderColor = 'var(--border-strong)';
+      chk.innerHTML = '';
+    }
+  });
+}
+
+function finishOB() {
+  goTo('s-home');
+}
+
+// Live clock
+function updateTime() {
+  const now = new Date();
+  const t = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  const el = document.getElementById('live-time');
+  if (el) el.textContent = t;
+}
+updateTime();
+setInterval(updateTime, 10000);
+</script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FORM — Built by Mark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;background:#e8e4da;color:#2c2820;}
+
+/* ── BACKGROUND ── */
+body{background:linear-gradient(145deg,#e8e4da 0%,#ddd8ce 100%);position:relative;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(44,40,32,.025) 40px,rgba(44,40,32,.025) 41px),repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(44,40,32,.025) 40px,rgba(44,40,32,.025) 41px);pointer-events:none;z-index:0;}
+
+/* ── LAYOUT ── */
+.page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;}
+
+/* ── LOGO MARK ── */
+.logo-mark{width:72px;height:72px;border-radius:22px;background:linear-gradient(135deg,#4e7d45,#2e4f28);display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-style:italic;font-size:32px;color:white;box-shadow:0 12px 40px rgba(78,125,69,.35),0 4px 12px rgba(78,125,69,.2);margin-bottom:28px;}
+
+/* ── HEADING ── */
+.title{font-family:'Instrument Serif',serif;font-style:italic;font-size:clamp(52px,8vw,80px);color:#1a1612;line-height:.9;letter-spacing:-2px;text-align:center;margin-bottom:8px;}
+.title span{color:#4e7d45;}
+.subtitle{font-size:clamp(14px,2vw,17px);color:#8a8278;font-weight:400;text-align:center;max-width:420px;line-height:1.6;margin-bottom:48px;}
+
+/* ── CARDS ── */
+.cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;width:100%;max-width:720px;}
+.card{
+  flex:1;min-width:260px;max-width:340px;
+  background:rgba(250,248,244,.9);border:1px solid rgba(44,40,32,.1);
+  border-radius:28px;padding:28px;
+  box-shadow:0 2px 12px rgba(44,40,32,.06),0 1px 3px rgba(44,40,32,.04);
+  text-decoration:none;color:inherit;
+  transition:transform .18s cubic-bezier(.4,0,.2,1),box-shadow .18s;
+  display:flex;flex-direction:column;gap:16px;
+}
+.card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(44,40,32,.12),0 4px 12px rgba(44,40,32,.06);}
+.card:active{transform:translateY(-1px);}
+
+.card-icon{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.card-icon.green{background:linear-gradient(135deg,#4e7d45,#2e4f28);}
+.card-icon.dark{background:linear-gradient(135deg,#2c2820,#1a1612);}
+
+.card-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#4e7d45;margin-bottom:2px;}
+.card-title{font-family:'Instrument Serif',serif;font-style:italic;font-size:26px;color:#1a1612;line-height:1;letter-spacing:-.3px;}
+.card-desc{font-size:13px;color:#8a8278;line-height:1.55;flex:1;}
+
+.card-cta{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#4e7d45;margin-top:4px;}
+.card.dark-card .card-label{color:#6d9963;}
+.card.dark-card .card-cta{color:#6d9963;}
+
+/* ── FOOTER ── */
+.footer{margin-top:48px;text-align:center;}
+.footer-text{font-size:12px;color:#c8bfb0;letter-spacing:.3px;}
+.footer-text strong{color:#8a8278;font-weight:600;}
+
+/* ── FLOATING BADGE ── */
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;background:rgba(78,125,69,.1);border:1px solid rgba(78,125,69,.2);font-size:11px;font-weight:600;color:#3a6333;margin-bottom:20px;letter-spacing:.2px;}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:#4e7d45;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.page > *{animation:fadeUp .6s both;}
+.logo-mark{animation-delay:.05s}
+.badge{animation-delay:.1s}
+.title{animation-delay:.15s}
+.subtitle{animation-delay:.2s}
+.cards{animation-delay:.28s}
+.footer{animation-delay:.36s}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="logo-mark">F</div>
+
+  <div class="badge">
+    <span class="badge-dot"></span>
+    Case Study · 2026
+  </div>
+
+  <div class="title"><span>F</span>orm</div>
+  <div class="subtitle">A full-stack fitness app — designed in Figma, built with Next.js 14 & TypeScript (strict), shipped solo by Mark.</div>
+
+  <div class="cards">
+
+    <a href="FORM_Portfolio.html" class="card">
+      <div class="card-icon green">📋</div>
+      <div>
+        <div class="card-label">Case Study</div>
+        <div class="card-title">Portfolio</div>
+      </div>
+      <div class="card-desc">Full design case study — overview, app screens, style system, features, and tech stack. Works on phone & desktop.</div>
+      <div class="card-cta">View Case Study →</div>
+    </a>
+
+    <a href="FORM_App_v3.html" class="card dark-card" style="background:rgba(26,22,18,.88);border-color:rgba(255,255,255,.07);">
+      <div class="card-icon dark">📱</div>
+      <div>
+        <div class="card-label" style="color:#6d9963">Live Demo</div>
+        <div class="card-title" style="color:white">App Demo</div>
+      </div>
+      <div class="card-desc" style="color:rgba(255,255,255,.5)">Interactive app prototype — splash, onboarding, dashboard, programs, community, progress, and workout logger.</div>
+      <div class="card-cta" style="color:#6d9963">Try the App →</div>
+    </a>
+
+  </div>
+
+  <div class="footer">
+    <div class="footer-text">Built by <strong>Mark</strong> · Next.js 14 · TypeScript · Figma · Tailwind · Supabase · Vercel</div>
+    <div class="footer-text" style="margin-top:4px">FORM · 2026</div>
+  </div>
+
+</div>
+</body>
+</html>

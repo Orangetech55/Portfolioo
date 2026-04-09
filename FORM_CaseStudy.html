@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FORM — UX Case Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* =============================================
+   TOKENS — FORM palette
+============================================= */
+:root {
+  /* Sage greens */
+  --sage-500: #4e7d45;
+  --sage-600: #3a6333;
+  --sage-700: #2e4f28;
+  --sage-800: #253f21;
+  --burg: #722f3d;
+
+  /* Neutrals */
+  --black: #e8e4da;        /* page bg — warm sand */
+  --off-black: #faf8f4;    /* cream */
+  --surface: #f5f2eb;      /* surface tinted */
+  --card: #ffffff;          /* white cards */
+  --border: rgba(44,40,32,.09);
+  --border-strong: rgba(44,40,32,.16);
+
+  /* Accent = sage */
+  --lime: #4e7d45;
+  --lime-dim: rgba(78,125,69,.10);
+  --lime-glow: rgba(78,125,69,.06);
+
+  /* Text */
+  --white: #1a1612;        /* ink — main text */
+  --muted: #8a8278;        /* stone */
+  --faint: #c8bfb0;        /* warm-gray */
+
+  /* Fonts */
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-body: 'Outfit', sans-serif;
+  --r: 12px;
+  --r-lg: 20px;
+}
+
+/* =============================================
+   RESET & BASE
+============================================= */
+*,*::before,*::after { box-sizing:border-box;margin:0;padding:0 }
+html { scroll-behavior:smooth }
+body {
+  background:var(--black);
+  color:var(--white);
+  font-family:var(--font-body);
+  font-size:15px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection { background:var(--sage-500);color:#fff }
+
+a { color:inherit;text-decoration:none }
+
+/* =============================================
+   LAYOUT
+============================================= */
+.container { max-width:1100px;margin:0 auto;padding:0 24px }
+.container-wide { max-width:1280px;margin:0 auto;padding:0 24px }
+section { padding:100px 0 }
+
+/* =============================================
+   NAV
+============================================= */
+nav {
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:0 24px;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(250,248,244,.92);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo {
+  font-family:var(--font-display);
+  font-style:italic;
+  font-size:22px;letter-spacing:1px;
+  color:var(--sage-700);
+}
+.nav-links { display:flex;gap:32px }
+.nav-links a {
+  font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--muted);transition:color .2s;
+}
+.nav-links a:hover { color:var(--sage-500) }
+
+/* =============================================
+   HERO
+============================================= */
+.hero {
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 24px 64px;
+  position:relative;overflow:hidden;
+  background:linear-gradient(160deg, var(--sage-800) 0%, var(--sage-600) 45%, var(--sage-500) 100%);
+}
+.hero-bg {
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 20%, rgba(158,220,148,.15) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 10% 80%, rgba(158,220,148,.08) 0%, transparent 50%);
+}
+.hero-grid {
+  position:absolute;inset:0;
+  background-image:
+    repeating-linear-gradient(-45deg,transparent,transparent 8px,rgba(255,255,255,.04) 8px,rgba(255,255,255,.04) 9px);
+}
+.hero-noise {
+  display:none;
+}
+.hero-content { position:relative;z-index:2;max-width:1100px;margin:0 auto;width:100% }
+.hero-meta {
+  display:flex;align-items:center;gap:12px;margin-bottom:28px;
+}
+.hero-tag {
+  padding:5px 12px;border-radius:100px;
+  font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  background:rgba(255,255,255,.12);color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.2);
+}
+.hero-year { font-size:12px;color:rgba(255,255,255,.5);letter-spacing:.5px }
+.hero-title {
+  font-family:var(--font-display);
+  font-style:italic;
+  font-size:clamp(72px,12vw,160px);
+  line-height:.88;letter-spacing:-2px;
+  color:white;margin-bottom:0;
+}
+.hero-title span { color:rgba(255,255,255,.6) }
+.hero-row {
+  display:flex;align-items:flex-end;justify-content:space-between;
+  flex-wrap:wrap;gap:32px;margin-top:32px;
+}
+.hero-desc {
+  max-width:480px;font-size:16px;color:rgba(255,255,255,.65);line-height:1.7;
+}
+.hero-stats { display:flex;gap:40px }
+.hero-stat-num {
+  font-family:var(--font-display);font-style:italic;font-size:48px;color:white;letter-spacing:1px;line-height:1;
+}
+.hero-stat-label { font-size:11px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-top:4px }
+.scroll-hint {
+  position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+}
+.scroll-line {
+  width:1px;height:40px;
+  background:linear-gradient(to bottom, rgba(255,255,255,.6), transparent);
+  animation:scrollpulse 2s ease-in-out infinite;
+}
+@keyframes scrollpulse { 0%,100%{opacity:.3} 50%{opacity:1} }
+
+/* =============================================
+   SECTION LABELS
+============================================= */
+.section-label {
+  display:flex;align-items:center;gap:10px;margin-bottom:48px;
+}
+.section-label-num {
+  font-family:var(--font-display);font-style:italic;font-size:13px;color:var(--sage-500);letter-spacing:1px;
+}
+.section-label-line { flex:1;height:1px;background:var(--border-strong) }
+.section-label-text {
+  font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);
+}
+
+.section-heading {
+  font-family:var(--font-serif);font-style:italic;
+  font-size:clamp(36px,5vw,56px);
+  color:var(--white);line-height:1.05;letter-spacing:-.5px;margin-bottom:16px;
+}
+.section-subheading {
+  font-size:16px;color:var(--muted);line-height:1.7;max-width:560px;
+}
+
+/* =============================================
+   CARDS
+============================================= */
+.card {
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:24px;
+}
+.card-label {
+  font-size:9px;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;
+  color:var(--sage-500);margin-bottom:10px;
+}
+.card-title { font-size:15px;font-weight:600;color:var(--white);margin-bottom:6px }
+.card-body { font-size:13px;color:var(--muted);line-height:1.65 }
+
+/* =============================================
+   01 — OVERVIEW
+============================================= */
+#overview { background:var(--off-black) }
+.overview-grid {
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;
+  background:var(--border);border-radius:var(--r-lg);overflow:hidden;
+  margin-bottom:48px;
+}
+.overview-block {
+  background:var(--card);padding:32px 28px;
+}
+.overview-block-num {
+  font-family:var(--font-display);font-style:italic;font-size:64px;color:var(--sage-500);
+  line-height:.9;letter-spacing:1px;margin-bottom:10px;
+}
+.overview-block-title { font-size:14px;font-weight:600;color:var(--white);margin-bottom:6px }
+.overview-block-body { font-size:13px;color:var(--muted);line-height:1.6 }
+
+.roles-row { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:40px }
+.role-chip {
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:16px;text-align:center;
+}
+.role-chip-icon { font-size:22px;margin-bottom:8px }
+.role-chip-name { font-size:12px;font-weight:600;color:var(--white) }
+
+/* =============================================
+   02 — PROBLEM
+============================================= */
+#problem { background:var(--black) }
+.problem-quote {
+  font-family:var(--font-serif);font-style:italic;
+  font-size:clamp(24px,4vw,42px);
+  color:var(--white);line-height:1.25;
+  border-left:3px solid var(--sage-500);
+  padding-left:28px;margin-bottom:48px;
+}
+.problem-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px }
+.problem-card {
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;
+  position:relative;overflow:hidden;
+}
+.problem-card::before {
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--sage-500);opacity:.5;
+}
+.problem-num {
+  font-family:var(--font-display);font-size:52px;color:var(--sage-500);opacity:.15;
+  position:absolute;top:12px;right:20px;line-height:1;letter-spacing:1px;
+}
+.problem-title { font-size:14px;font-weight:700;color:var(--white);margin-bottom:8px }
+.problem-text { font-size:13px;color:var(--muted);line-height:1.65 }
+
+/* =============================================
+   03 — RESEARCH
+============================================= */
+#research { background:var(--off-black) }
+.research-layout { display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start }
+.research-method {
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:28px;margin-bottom:16px;
+  display:flex;align-items:flex-start;gap:16px;
+}
+.research-method-icon {
+  width:44px;height:44px;border-radius:12px;background:var(--lime-dim);
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
+}
+.research-method-title { font-size:14px;font-weight:600;color:var(--white);margin-bottom:4px }
+.research-method-body { font-size:12px;color:var(--muted);line-height:1.6 }
+
+/* Bar chart */
+.survey-chart { background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:28px }
+.chart-title { font-size:14px;font-weight:600;color:var(--white);margin-bottom:4px }
+.chart-sub { font-size:11px;color:var(--muted);margin-bottom:24px }
+.bar-row { margin-bottom:14px }
+.bar-label { display:flex;justify-content:space-between;margin-bottom:5px }
+.bar-label-text { font-size:12px;color:var(--muted) }
+.bar-label-val { font-size:12px;font-weight:600;color:var(--sage-500) }
+.bar-track { height:8px;background:rgba(44,40,32,.08);border-radius:4px;overflow:hidden }
+.bar-fill {
+  height:100%;border-radius:4px;background:var(--sage-500);
+  width:0;transition:width 1.2s cubic-bezier(.4,0,.2,1);
+}
+.bar-fill.animated { }
+
+/* PT Quote */
+.pt-quote {
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:28px;margin-top:16px;position:relative;
+}
+.pt-quote::before {
+  content:'"';position:absolute;top:-10px;left:20px;
+  font-family:var(--font-serif);font-size:80px;color:var(--sage-500);opacity:.2;line-height:1;
+}
+.pt-quote-text { font-size:14px;color:var(--white);line-height:1.65;font-style:italic;margin-bottom:12px }
+.pt-quote-attr { font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--sage-500) }
+
+/* =============================================
+   04 — KEY FINDINGS
+============================================= */
+#findings { background:var(--black) }
+.findings-grid { display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px }
+.finding-card {
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:28px;position:relative;overflow:hidden;
+  transition:border-color .2s,transform .2s;cursor:default;
+}
+.finding-card:hover { border-color:rgba(78,125,69,.3);transform:translateY(-3px) }
+.finding-icon {
+  width:48px;height:48px;border-radius:14px;background:var(--lime-dim);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  margin-bottom:16px;
+}
+.finding-title { font-size:15px;font-weight:700;color:var(--white);margin-bottom:8px }
+.finding-body { font-size:12px;color:var(--muted);line-height:1.65 }
+.finding-glow {
+  position:absolute;bottom:-40px;right:-40px;
+  width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle, rgba(78,125,69,.08) 0%, transparent 70%);
+}
+
+/* =============================================
+   05 — PERSONAS
+============================================= */
+#personas { background:var(--off-black) }
+.personas-grid { display:grid;grid-template-columns:1fr 1fr;gap:24px }
+.persona-card {
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);
+  overflow:hidden;
+}
+.persona-header {
+  padding:28px;
+  background:linear-gradient(135deg, rgba(78,125,69,.08), rgba(78,125,69,.02));
+  border-bottom:1px solid var(--border);
+  display:flex;gap:20px;align-items:flex-start;
+}
+.persona-avatar {
+  width:60px;height:60px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+  background:var(--lime-dim);border:1px solid rgba(78,125,69,.2);flex-shrink:0;
+}
+.persona-name { font-family:var(--font-serif);font-style:italic;font-size:24px;color:var(--white);margin-bottom:3px }
+.persona-role { font-size:12px;color:var(--muted) }
+.persona-stats { display:flex;gap:16px;margin-top:10px }
+.pstat { text-align:center }
+.pstat-label { font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--muted) }
+.pstat-bar { display:flex;gap:3px;margin-top:4px }
+.pstat-dot { width:10px;height:10px;border-radius:3px }
+.pstat-dot.fill { background:var(--sage-500) }
+.pstat-dot.empty { background:rgba(255,255,255,.08) }
+.persona-body { padding:24px }
+.persona-section-head { font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--sage-500);margin-bottom:8px }
+.persona-list { list-style:none;margin-bottom:16px }
+.persona-list li {
+  font-size:12px;color:var(--muted);line-height:1.5;
+  padding:6px 0;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:8px;
+}
+.persona-list li::before { content:'→';color:var(--sage-500);flex-shrink:0;font-size:10px;margin-top:1px }
+
+/* =============================================
+   06 — COMPETITIVE ANALYSIS
+============================================= */
+#competitive { background:var(--black) }
+.comp-table-wrap { overflow-x:auto;border-radius:var(--r-lg);border:1px solid var(--border);margin-top:40px }
+.comp-table { width:100%;border-collapse:collapse }
+.comp-table th {
+  padding:14px 20px;text-align:left;
+  font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--muted);border-bottom:1px solid var(--border);
+  background:var(--card);white-space:nowrap;
+}
+.comp-table td {
+  padding:14px 20px;font-size:13px;color:var(--muted);
+  border-bottom:1px solid var(--border);vertical-align:middle;
+}
+.comp-table tr:last-child td { border-bottom:none }
+.comp-table tr:hover td { background:rgba(78,125,69,.04) }
+.comp-name { font-weight:600;color:var(--white);font-size:14px }
+.comp-check { color:var(--sage-500);font-size:16px }
+.comp-cross { color:rgba(44,40,32,.18);font-size:16px }
+.comp-weakness { font-size:11px;line-height:1.5 }
+
+.comp-cards { display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px }
+.comp-card {
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;
+}
+.comp-card-name { font-size:13px;font-weight:700;color:var(--white);margin-bottom:6px }
+.comp-card-gap { font-size:11px;color:var(--muted);line-height:1.55;margin-bottom:10px }
+.comp-card-tag {
+  padding:3px 9px;border-radius:100px;font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;
+  background:rgba(255,80,80,.1);color:#ff9a9a;border:1px solid rgba(255,80,80,.2);
+}
+
+/* =============================================
+   07 — SOLUTION
+============================================= */
+#solution { background:var(--off-black) }
+.solution-hero {
+  background:linear-gradient(135deg, rgba(78,125,69,.08) 0%, transparent 60%);
+  border:1px solid rgba(78,125,69,.2);
+  border-radius:var(--r-lg);padding:40px;margin-bottom:40px;
+  position:relative;overflow:hidden;
+}
+.solution-hero-glow {
+  position:absolute;top:-60px;right:-60px;
+  width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle, rgba(78,125,69,.08) 0%, transparent 70%);
+}
+.solution-hero-quote {
+  font-family:var(--font-serif);font-style:italic;
+  font-size:clamp(22px,3vw,34px);color:var(--white);line-height:1.3;
+  position:relative;z-index:2;margin-bottom:16px;
+}
+.solution-hero-body { font-size:14px;color:var(--muted);line-height:1.7;position:relative;z-index:2;max-width:640px }
+
+.solution-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px }
+.solution-item {
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:24px;display:flex;gap:16px;align-items:flex-start;
+  transition:border-color .2s;
+}
+.solution-item:hover { border-color:rgba(78,125,69,.25) }
+.solution-item-icon {
+  width:44px;height:44px;border-radius:13px;background:var(--lime-dim);
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
+}
+.solution-item-title { font-size:14px;font-weight:600;color:var(--white);margin-bottom:5px }
+.solution-item-body { font-size:12px;color:var(--muted);line-height:1.6 }
+
+/* =============================================
+   08 — FEATURES
+============================================= */
+#features { background:var(--black) }
+.features-layout { display:grid;grid-template-columns:1fr 2fr;gap:40px }
+.features-toc { position:sticky;top:80px }
+.feat-toc-item {
+  display:flex;align-items:center;gap:12px;padding:12px 0;
+  border-bottom:1px solid var(--border);cursor:pointer;transition:color .15s;
+}
+.feat-toc-item:hover .feat-toc-name { color:var(--white) }
+.feat-toc-dot { width:6px;height:6px;border-radius:50%;background:rgba(78,125,69,.4) }
+.feat-toc-num { font-size:10px;color:var(--faint);font-family:var(--font-display);letter-spacing:1px }
+.feat-toc-name { font-size:13px;color:var(--muted) }
+
+.feature-block {
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);
+  overflow:hidden;margin-bottom:16px;
+}
+.feature-block-header {
+  padding:24px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;
+}
+.feat-icon-large {
+  width:52px;height:52px;border-radius:16px;background:var(--lime-dim);
+  display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;
+}
+.feat-title-lg { font-size:17px;font-weight:700;color:var(--white);margin-bottom:3px }
+.feat-sub { font-size:12px;color:var(--muted) }
+.feature-block-body { padding:24px }
+.feat-detail { font-size:13px;color:var(--muted);line-height:1.7 }
+.feat-tags { display:flex;gap:6px;flex-wrap:wrap;margin-top:14px }
+.feat-tag {
+  padding:4px 10px;border-radius:100px;font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;
+  background:var(--lime-dim);color:var(--sage-500);border:1px solid rgba(78,125,69,.2);
+}
+
+/* =============================================
+   PT INSIGHTS
+============================================= */
+#insights { background:var(--off-black) }
+.insights-grid { display:grid;grid-template-columns:1fr 1fr;gap:16px }
+.insight-card {
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:24px;position:relative;
+}
+.insight-q { font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--sage-500);margin-bottom:10px }
+.insight-a { font-size:13px;color:var(--muted);line-height:1.7;font-style:italic }
+
+/* =============================================
+   09 — OUTCOME
+============================================= */
+#outcome { background:var(--black) }
+.outcome-big {
+  text-align:center;padding:80px 24px;
+  background:linear-gradient(135deg, rgba(78,125,69,.05), transparent);
+  border:1px solid rgba(78,125,69,.1);
+  border-radius:var(--r-lg);margin-bottom:48px;
+}
+.outcome-big-title {
+  font-family:var(--font-display);font-style:italic;font-size:clamp(48px,10vw,120px);
+  color:var(--sage-600);letter-spacing:-1px;line-height:.9;margin-bottom:16px;
+}
+.outcome-big-sub { font-size:18px;color:var(--muted);max-width:500px;margin:0 auto }
+.outcome-pills { display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:24px }
+.outcome-pill {
+  padding:8px 18px;border-radius:100px;font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;
+  background:rgba(78,125,69,.1);color:var(--sage-600);border:1px solid rgba(78,125,69,.25);
+}
+
+.lessons-grid { display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px }
+.lesson-card {
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;
+}
+.lesson-num {
+  font-family:var(--font-display);font-style:italic;font-size:40px;color:var(--sage-500);opacity:.4;line-height:1;margin-bottom:10px;
+}
+.lesson-title { font-size:14px;font-weight:700;color:var(--white);margin-bottom:6px }
+.lesson-body { font-size:12px;color:var(--muted);line-height:1.65 }
+
+/* =============================================
+   FOOTER
+============================================= */
+footer {
+  background:var(--sage-800);border-top:1px solid rgba(255,255,255,.08);
+  padding:40px 24px;text-align:center;
+}
+.footer-name {
+  font-family:var(--font-display);font-style:italic;font-size:72px;color:white;line-height:.9;margin-bottom:12px;
+}
+.footer-sub { font-size:12px;color:rgba(255,255,255,.5) }
+.footer-lime { color:rgba(200,240,190,.8) }
+
+/* =============================================
+   ANIMATIONS
+============================================= */
+.fade-up {
+  opacity:0;transform:translateY(32px);
+  transition:opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1);
+}
+.fade-up.visible { opacity:1;transform:translateY(0) }
+.fade-up-delay-1 { transition-delay:.1s }
+.fade-up-delay-2 { transition-delay:.2s }
+.fade-up-delay-3 { transition-delay:.3s }
+.fade-up-delay-4 { transition-delay:.4s }
+
+/* =============================================
+   RESPONSIVE
+============================================= */
+@media (max-width:768px) {
+  section { padding:64px 0 }
+  .overview-grid { grid-template-columns:1fr }
+  .problem-grid { grid-template-columns:1fr }
+  .research-layout { grid-template-columns:1fr }
+  .findings-grid { grid-template-columns:1fr 1fr }
+  .personas-grid { grid-template-columns:1fr }
+  .comp-cards { grid-template-columns:1fr 1fr }
+  .solution-grid { grid-template-columns:1fr }
+  .features-layout { grid-template-columns:1fr }
+  .features-toc { display:none }
+  .insights-grid { grid-template-columns:1fr }
+  .lessons-grid { grid-template-columns:1fr }
+  .roles-row { grid-template-columns:1fr 1fr }
+  .hero-stats { gap:24px }
+  .nav-links { display:none }
+}
+@media (max-width:480px) {
+  .findings-grid { grid-template-columns:1fr }
+  .comp-cards { grid-template-columns:1fr }
+  .hero-title { font-size:clamp(56px,16vw,100px) }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">FORM</div>
+  <div class="nav-links">
+    <a href="#overview">Overview</a>
+    <a href="#problem">Problem</a>
+    <a href="#research">Research</a>
+    <a href="#personas">Personas</a>
+    <a href="#solution">Solution</a>
+    <a href="#outcome">Outcome</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-noise"></div>
+  <div class="hero-content">
+    <div class="hero-meta">
+      <span class="hero-tag">UX Case Study</span>
+      <span class="hero-tag">Fitness App</span>
+      <span class="hero-year">2023</span>
+    </div>
+    <div class="hero-title"><em>FORM</em></div>
+    <div class="hero-row">
+      <div class="hero-desc">A UX research-led fitness app designed to build lasting workout habits — through psychology, community, and intelligent progress tracking.</div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-num">30+</div>
+          <div class="hero-stat-label">Survey respondents</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">2</div>
+          <div class="hero-stat-label">User personas</div>
+        </div>
+        <div>
+          <div class="hero-stat-num">4</div>
+          <div class="hero-stat-label">Competitors audited</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</div>
+
+<!-- 01 OVERVIEW -->
+<section id="overview">
+  <div class="container">
+    <div class="section-label fade-up">
+      <span class="section-label-num">01</span>
+      <div class="section-label-line"></div>
+      <span class="section-label-text">Project Overview</span>
+    </div>
+    <div class="section-heading fade-up fade-up-delay-1">What we set out to <em>solve</em></div>
+    <div class="section-subheading fade-up fade-up-delay-2" style="margin-bottom:48px">A multidisciplinary research and design project exploring why people quit their fitness routines — and what a digital product can do to change that.</div>
+
+    <div class="overview-grid fade-up fade-up-delay-1">
+      <div class="overview-block">
+        <div class="overview-block-num">01</div>
+        <div class="overview-block-title">The Challenge</div>
+        <div class="overview-block-body">Most people start exercising with high motivation but quit within months. The gap between intention and long-term habit is the core design problem this project addresses.</div>
+      </div>
+      <div class="overview-block">
+        <div class="overview-block-num">02</div>
+        <div class="overview-block-title">Our Approach</div>
+        <div class="overview-block-body">We conducted qualitative interviews, a 30-person survey, interviewed a licensed personal trainer, and performed a competitive analysis across 4 major fitness apps.</div>
+      </div>
+      <div class="overview-block">
+        <div class="overview-block-num">03</div>
+        <div class="overview-block-title">The Outcome</div>
+        <div class="overview-block-body">A defined product vision, core feature set, and design principles for a habit-focused fitness app — backed by real user data and expert insight.</div>
+      </div>
+    </div>
+
+    <div class="roles-row fade-up fade-up-delay-2">
+      <div class="role-chip"><div class="role-chip-icon">🔬</div><div class="role-chip-name">UX Research</div></div>
+      <div class="role-chip"><div class="role-chip-icon">👤</div><div class="role-chip-name">Persona Design</div></div>
+      <div class="role-chip"><div class="role-chip-icon">📊</div><div class="role-chip-name">Data Analysis</div></div>
+      <div class="role-chip"><div class="role-chip-icon">🧠</div><div class="role-chip-name">Product Strategy</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 PROBLEM -->
+<section id="problem">
+  <div class="container">
+    <div class="section-label fade-up">
+      <span class="section-label-num">02</span>
+      <div class="section-label-line"></div>
+      <span class="section-label-text">The Problem</span>
+    </div>
+    <div class="problem-quote fade-up fade-up-delay-1">"How do we give people the motivation and discipline to incorporate training into their daily life — not just for a short period of time?"</div>
+
+    <div class="problem-grid fade-up fade-up-delay-2">
+      <div class="problem-card">
+        <div class="problem-num">01</div>
+        <div class="problem-title">Lack of Motivation</div>
+        <div class="problem-text">Results aren't visible immediately. When the effort doesn't match perceived progress, motivation fades. People need tangible, measurable feedback to stay engaged.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">02</div>
+        <div class="problem-title">Time Constraints</div>
+        <div class="problem-text">Busy schedules, work, family and social commitments make it difficult to protect time for training. Without a plan, training is always the first thing to get cut.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">03</div>
+        <div class="problem-title">Knowledge Gap</div>
+        <div class="problem-text">Without understanding proper technique, programming, or progressive overload, people jump between exercises at random — getting no real results, and risking injury.</div>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">04</div>
+        <div class="problem-title">Life Disruption</div>
+        <div class="problem-text">Illness, travel, or family emergencies break routines. Without systems to re-engage, a temporary break becomes a permanent quit.</div>
+      </div>
+    </div>
+
+    <div class="card fade-up fade-up-delay-3">
+      <div class="card-label">Core Insight</div>
+      <div style="font-family:var(--font-serif);font-style:italic;font-size:22px;color:var(--white);line-height:1.4">Fitness apps already exist. The problem isn't access to workout information — it's the absence of <em>habit architecture</em> that keeps people showing up consistently over months and years.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 RESEARCH -->
+<section id="research">
+  <div class="container">
+    <div class="section-label fade-up">
+      <span class="section-label-num">03</span>
+      <div class="section-label-line"></div>
+      <span class="section-label-text">Research</span>
+    </div>
+    <div class="section-heading fade-up fade-up-delay-1">Listening before <em>designing</em></div>
+    <div class="section-subheading fade-up fade-up-delay-2" style="margin-bottom:48px">We spoke to 20+ people aged 18–58 across school, work, and the public. We also surveyed 30 users online and interviewed a licensed personal trainer.</div>
+
+    <div class="research-layout">
+      <div class="fade-up fade-up-delay-1">
+        <div class="research-method">
+          <div class="research-method-icon">📋</div>
+          <div>
+            <div class="research-method-title">Online Survey — 30 Respondents</div>
+            <div class="research-method-body">Collected via Google Forms. Targeted age 18–58. Covered motivation levels, exercise habits, what frustrates them, and what would help them stay consistent.</div>
+          </div>
+        </div>
+        <div class="research-method">
+          <div class="research-method-icon">🎙️</div>
+          <div>
+            <div class="research-method-title">Qualitative Interviews — 20+ People</div>
+            <div class="research-method-body">Face-to-face and remote interviews with students, professionals, parents, and strangers. Identified patterns in quitting behaviour and what people actually want from a fitness product.</div>
+          </div>
+        </div>
+        <div class="research-method">
+          <div class="research-method-icon">🏋️</div>
+          <div>
+            <div class="research-method-title">Expert Interview — Licensed Personal Trainer</div>
+            <div class="research-method-body">Deep-dive with a certified PT on technique, progressive overload, reward psychology, and whether digital tools like stats and community actually work.</div>
+          </div>
+        </div>
+
+        <div class="pt-quote fade-up fade-up-delay-2">
+          <div class="pt-quote-text">"A lot of people have too high expectations at first. They want to see results quickly and when they don't, motivation dies out. You must prioritize exercise, food, and sleep to create results — but when work, friends, and family get in the way, it becomes difficult."</div>
+          <div class="pt-quote-attr">Licensed Personal Trainer</div>
+        </div>
+      </div>
+
+      <div class="fade-up fade-up-delay-2">
+        <div class="survey-chart">
+          <div class="chart-title">What would motivate you to train consistently?</div>
+          <div class="chart-sub">Survey respondents — ranked by frequency of mention</div>
+          <div class="bar-row"><div class="bar-label"><span class="bar-label-text">Seeing measurable progress</span><span class="bar-label-val">82%</span></div><div class="bar-track"><div class="bar-fill" data-width="82"></div></div></div>
+          <div class="bar-row"><div class="bar-label"><span class="bar-label-text">A structured training plan</span><span class="bar-label-val">76%</span></div><div class="bar-track"><div class="bar-fill" data-width="76"></div></div></div>
+          <div class="bar-row"><div class="bar-label"><span class="bar-label-text">Community / workout buddy</span><span class="bar-label-val">68%</span></div><div class="bar-track"><div class="bar-fill" data-width="68"></div></div></div>
+          <div class="bar-row"><div class="bar-label"><span class="bar-label-text">Habit tracking / streaks</span><span class="bar-label-val">61%</span></div><div class="bar-track"><div class="bar-fill" data-width="61"></div></div></div>
+          <div class="bar-row"><div class="bar-label"><span class="bar-label-text">In-app rewards / points</span><span class="bar-label-val">44%</span></div><div class="bar-track"><div class="bar-fill" data-width="44"></div></div></div>
+          <div class="bar-row"><div class="bar-label"><span class="bar-label-text">Before/after photo comparison</span><span class="bar-label-val">58%</span></div><div class="bar-track"><div class="bar-fill" data-width="58"></div></div></div>
+        </div>
+
+        <div class="card" style="margin-top:16px;fade-up fade-up-delay-3">
+          <div class="card-label">Quantitative Insight</div>
+          <div class="card-title">Exercise knowledge is the missing piece</div>
+          <div class="card-body">Our survey revealed that lack of technique, understanding of muscle groups, and structure were the top 3 reasons people fail to see results — even when training regularly. This wasn't about effort. It was about education.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 KEY FINDINGS -->
+<section id="findings">
+  <div class="container">
+    <div class="section-label fade-up">
+      <span class="section-label-num">04</span>
+      <div class="section-label-line"></div>
+      <span class="section-label-text">Key Findings</span>
+    </div>
+    <div class="section-heading fade-up fade-up-delay-1">What the data <em>revealed</em></div>
+    <div style="margin-bottom:40px"></div>
+
+    <div class="findings-grid">
+      <div class="finding-card fade-up fade-up-delay-1">
+        <div class="finding-icon">📉</div>
+        <div class="finding-title">High expectations, fast burnout</div>
+        <div class="finding-body">Users expect visible results within weeks. When that doesn't happen, motivation collapses. The app must recalibrate expectations and celebrate micro-progress early.</div>
+        <div class="finding-glow"></div>
+      </div>
+      <div class="finding-card fade-up fade-up-delay-2">
+        <div class="finding-icon">⏰</div>
+        <div class="finding-title">Time is the enemy</div>
+        <div class="finding-body">80%+ of interviewees cited time as a primary barrier. Short, high-intensity sessions (supersets, 30-min workouts) need to be first-class citizens in the product.</div>
+        <div class="finding-glow"></div>
+      </div>
+      <div class="finding-card fade-up fade-up-delay-3">
+        <div class="finding-icon">🧠</div>
+        <div class="finding-title">Technique is invisible but critical</div>
+        <div class="finding-body">People train without knowing what muscle they're targeting. The PT confirmed that technique and structure — not volume — are the biggest determinants of results for beginners.</div>
+        <div class="finding-glow"></div>
+      </div>
+      <div class="finding-card fade-up fade-up-delay-1">
+        <div class="finding-icon">👥</div>
+        <div class="finding-title">Community creates accountability</div>
+        <div class="finding-body">A fitness community was rated highly — but not for competition. Users want solidarity and shared experience, not leaderboards that highlight inequality in starting points.</div>
+        <div class="finding-glow"></div>
+      </div>
+      <div class="finding-card fade-up fade-up-delay-2">
+        <div class="finding-icon">🏆</div>
+        <div class="finding-title">Rewards need careful design</div>
+        <div class="finding-body">The PT warned against badly designed reward systems. Points and discounts can create manic behavior. The best reward is seeing your own data — statistics, before/after photos, personal bests.</div>
+        <div class="finding-glow"></div>
+      </div>
+      <div class="finding-card fade-up fade-up-delay-3">
+        <div class="finding-icon">📈</div>
+        <div class="finding-title">Progress tracking is the killer feature</div>
+        <div class="finding-body">Stats-based progress tracking was universally valued across all personas. The PT himself uses one. Seeing your development curve over time builds intrinsic motivation — the only kind that lasts.</div>
+        <div class="finding-glow"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 PERSONAS -->
+<section id="personas">
+  <div class="container">
+    <div class="section-label fade-up">
+      <span class="section-label-num">05</span>
+      <div class="section-label-line"></div>
+      <span class="section-label-text">User Personas</span>
+    </div>
+    <div class="section-heading fade-up fade-up-delay-1">Who we designed <em>for</em></div>
+    <div class="section-subheading fade-up fade-up-delay-2" style="margin-bottom:48px">Two primary personas emerged from research — representing the full spectrum of our target audience from beginner to returning athlete.</div>
+
+    <div class="personas-grid">
+      <!-- Persona 1 -->
+      <div class="persona-card fade-up fade-up-delay-1">
+        <div class="persona-header">
+          <div class="persona-avatar">👩‍🎓</div>
+          <div>
+            <div class="persona-name">Cajta, 24</div>
+            <div class="persona-role">Engineering Student · Stockholm · Single</div>
+            <div class="persona-stats">
+              <div class="pstat">
+                <div class="pstat-label">Motivation</div>
+                <div class="pstat-bar">
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot empty"></div>
+                  <div class="pstat-dot empty"></div>
+                </div>
+              </div>
+              <div class="pstat">
+                <div class="pstat-label">Stress</div>
+                <div class="pstat-bar">
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot empty"></div>
+                </div>
+              </div>
+              <div class="pstat">
+                <div class="pstat-label">Knowledge</div>
+                <div class="pstat-bar">
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot empty"></div>
+                  <div class="pstat-dot empty"></div>
+                  <div class="pstat-dot empty"></div>
+                  <div class="pstat-dot empty"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="persona-body">
+          <div style="font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:16px">Engineering student in her final year. Rejoined a gym after years away. Excited but overwhelmed — no training plan and unsure what to do when she arrives.</div>
+          <div class="persona-section-head">Goals</div>
+          <ul class="persona-list">
+            <li>Make fitness a daily habit with a clear structure</li>
+            <li>Improve body image and self-confidence at the gym</li>
+            <li>See visible results without wasted time</li>
+          </ul>
+          <div class="persona-section-head">Frustrations</div>
+          <ul class="persona-list">
+            <li>No training plan — hard to combine study and gym</li>
+            <li>Bad technique means no results and potential injury</li>
+            <li>Doesn't know what to prioritise in the session</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Persona 2 -->
+      <div class="persona-card fade-up fade-up-delay-2">
+        <div class="persona-header">
+          <div class="persona-avatar">👨‍👧‍👦</div>
+          <div>
+            <div class="persona-name">Liam, 38</div>
+            <div class="persona-role">Real Estate Agent · Örebro · Married, 2 Kids</div>
+            <div class="persona-stats">
+              <div class="pstat">
+                <div class="pstat-label">Motivation</div>
+                <div class="pstat-bar">
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot empty"></div>
+                </div>
+              </div>
+              <div class="pstat">
+                <div class="pstat-label">Stress</div>
+                <div class="pstat-bar">
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot empty"></div>
+                </div>
+              </div>
+              <div class="pstat">
+                <div class="pstat-label">Knowledge</div>
+                <div class="pstat-bar">
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot fill"></div>
+                  <div class="pstat-dot empty"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="persona-body">
+          <div style="font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:16px">Former advanced bodybuilder. Took a break after his first child. Now, with his kids older, he wants to return to peak form — but his schedule is packed and discipline has slipped.</div>
+          <div class="persona-section-head">Goals</div>
+          <ul class="persona-list">
+            <li>Return to previous physical shape and performance</li>
+            <li>Have the strength to keep up with his kids</li>
+            <li>Be a fitness role model for his family</li>
+          </ul>
+          <div class="persona-section-head">Frustrations</div>
+          <ul class="persona-list">
+            <li>No free time — training keeps getting postponed</li>
+            <li>When he does have time, he rests instead of trains</li>
+            <li>Behaviour change feels hard without structure</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPETITIVE ANALYSIS -->
+<section id="competitive">
+  <div class="container-wide">
+    <div class="container" style="padding:0">
+      <div class="section-label fade-up">
+        <span class="section-label-num">06</span>
+        <div class="section-label-line"></div>
+        <span class="section-label-text">Competitive Analysis</span>
+      </div>
+      <div class="section-heading fade-up fade-up-delay-1">What already exists — and where it <em>fails</em></div>
+      <div class="section-subheading fade-up fade-up-delay-2" style="margin-bottom:48px">We audited 4 leading fitness apps to identify gaps our product could fill.</div>
+    </div>
+
+    <div class="comp-cards fade-up fade-up-delay-1">
+      <div class="comp-card">
+        <div class="comp-card-name">Fiton</div>
+        <div class="comp-card-gap">Too many features with no focal point. Confusing for unmotivated users who need a clear starting point.</div>
+        <span class="comp-card-tag">Overwhelming</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-card-name">Freeletics</div>
+        <div class="comp-card-gap">Community-heavy but lacks personal growth tracking. No stats displayed, no custom program builder.</div>
+        <span class="comp-card-tag">No Progress Data</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-card-name">Strength Log</div>
+        <div class="comp-card-gap">Great for advanced lifters but no instructional video or technique guidance. Beginner-hostile.</div>
+        <span class="comp-card-tag">Not Beginner-Friendly</span>
+      </div>
+      <div class="comp-card">
+        <div class="comp-card-name">Workout</div>
+        <div class="comp-card-gap">Strength-focused with poor variety. No community layer. Sessions can't be fully customised.</div>
+        <span class="comp-card-tag">Limited Scope</span>
+      </div>
+    </div>
+
+    <div class="comp-table-wrap fade-up fade-up-delay-2">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Fiton</th>
+            <th>Freeletics</th>
+            <th>Strength Log</th>
+            <th>Workout</th>
+            <th style="color:var(--sage-500)">Our App</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Community / Social Feed</td>
+            <td><span class="comp-check">✓</span></td>
+            <td><span class="comp-check">✓</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-check" style="color:var(--sage-500)">✓</span></td>
+          </tr>
+          <tr>
+            <td>Custom Training Plan</td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-check">✓</span></td>
+            <td><span class="comp-check">✓</span></td>
+            <td><span class="comp-check" style="color:var(--sage-500)">✓</span></td>
+          </tr>
+          <tr>
+            <td>Progress Statistics</td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-check">✓</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-check" style="color:var(--sage-500)">✓</span></td>
+          </tr>
+          <tr>
+            <td>Technique Guidance</td>
+            <td><span class="comp-check">✓</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-check" style="color:var(--sage-500)">✓</span></td>
+          </tr>
+          <tr>
+            <td>Beginner-Friendly</td>
+            <td><span class="comp-check">✓</span></td>
+            <td><span class="comp-check">✓</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-check" style="color:var(--sage-500)">✓</span></td>
+          </tr>
+          <tr>
+            <td>Free to Use (Core)</td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-check">✓</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-check" style="color:var(--sage-500)">✓</span></td>
+          </tr>
+          <tr>
+            <td>Habit / Streak Tracking</td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-cross">✗</span></td>
+            <td><span class="comp-check" style="color:var(--sage-500)">✓</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- PT INSIGHTS -->
+<section id="insights">
+  <div class="container">
+    <div class="section-label fade-up">
+      <span class="section-label-num">07</span>
+      <div class="section-label-line"></div>
+      <span class="section-label-text">PT Expert Insights</span>
+    </div>
+    <div class="section-heading fade-up fade-up-delay-1">Straight from a <em>professional</em></div>
+    <div class="section-subheading fade-up fade-up-delay-2" style="margin-bottom:40px">We asked a licensed personal trainer 8 direct questions. These answers shaped our product decisions.</div>
+
+    <div class="insights-grid">
+      <div class="insight-card fade-up fade-up-delay-1">
+        <div class="insight-q">On why people quit within months</div>
+        <div class="insight-a">"People don't plan their everyday life correctly to make time for training. They want results fast, and when they don't appear, motivation dies out."</div>
+      </div>
+      <div class="insight-card fade-up fade-up-delay-2">
+        <div class="insight-q">On creating discipline</div>
+        <div class="insight-a">"Discipline is created by setting a goal you can actually achieve, and a training schedule that creates structure in your life."</div>
+      </div>
+      <div class="insight-card fade-up fade-up-delay-1">
+        <div class="insight-q">On why people don't see results</div>
+        <div class="insight-a">"Lack of technique, lack of nutritional knowledge, and lack of structure. People jump between exercises without knowing which muscle they're training."</div>
+      </div>
+      <div class="insight-card fade-up fade-up-delay-2">
+        <div class="insight-q">On training with little time</div>
+        <div class="insight-a">"If you're short on time you must do a more intensive session. Supersets — training two antagonist muscle groups back to back — are ideal."</div>
+      </div>
+      <div class="insight-card fade-up fade-up-delay-1">
+        <div class="insight-q">On reward systems</div>
+        <div class="insight-a">"Exercise itself is a reward — it secretes endorphins. It depends on the system. If done right, there can be benefits. But it can also create manic behavior."</div>
+      </div>
+      <div class="insight-card fade-up fade-up-delay-2">
+        <div class="insight-q">On before/after photo features</div>
+        <div class="insight-a">"It can definitely be motivating — but only if the person has actually gotten results. If they look the same after three months, it can be very unmotivating without support."</div>
+      </div>
+      <div class="insight-card fade-up fade-up-delay-1">
+        <div class="insight-q">On progress statistics in apps</div>
+        <div class="insight-a">"I use such an app myself. It's very good. It helps you track training and understand your development curve."</div>
+      </div>
+      <div class="insight-card fade-up fade-up-delay-2">
+        <div class="insight-q">On community features</div>
+        <div class="insight-a">"A community creates unity. Many need that feeling to maintain motivation. But don't compare weights and reps — everyone's starting point is too different."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 SOLUTION -->
+<section id="solution">
+  <div class="container">
+    <div class="section-label fade-up">
+      <span class="section-label-num">08</span>
+      <div class="section-label-line"></div>
+      <span class="section-label-text">The Solution</span>
+    </div>
+    <div class="section-heading fade-up fade-up-delay-1">A fitness app built on <em>habit science</em></div>
+
+    <div class="solution-hero fade-up fade-up-delay-2">
+      <div class="solution-hero-glow"></div>
+      <div class="solution-hero-quote">"To create a training app that gives the right tools to show people how to train, and builds a community that gives people a feeling of comfort."</div>
+      <div class="solution-hero-body">Our solution combines structured programming, intelligent progress tracking, technique education, and a supportive community — without the overwhelm of apps that try to do everything at once.</div>
+    </div>
+
+    <div class="solution-grid fade-up fade-up-delay-3">
+      <div class="solution-item">
+        <div class="solution-item-icon">📋</div>
+        <div>
+          <div class="solution-item-title">Structured Training Plans</div>
+          <div class="solution-item-body">Curated programs matched to user goals and experience. Not a gym with 500 machines — a personal coach with a plan. Weekly structure visible at a glance.</div>
+        </div>
+      </div>
+      <div class="solution-item">
+        <div class="solution-item-icon">📊</div>
+        <div>
+          <div class="solution-item-title">Progress Statistics Dashboard</div>
+          <div class="solution-item-body">Visual charts for weights, reps, streaks, personal bests. The data makes progress concrete — especially in the early weeks when the mirror hasn't caught up yet.</div>
+        </div>
+      </div>
+      <div class="solution-item">
+        <div class="solution-item-icon">🎥</div>
+        <div>
+          <div class="solution-item-title">Technique Library</div>
+          <div class="solution-item-body">Video and written guidance for every exercise — filling the gap no competitor has filled. Beginners understand what they're doing. Advanced users refine form.</div>
+        </div>
+      </div>
+      <div class="solution-item">
+        <div class="solution-item-icon">👥</div>
+        <div>
+          <div class="solution-item-title">Community (Without Competition)</div>
+          <div class="solution-item-body">A social feed for sharing wins, tips, and motivation — not leaderboards. The goal is solidarity, not comparison. Community members celebrate each other's personal progress.</div>
+        </div>
+      </div>
+      <div class="solution-item">
+        <div class="solution-item-icon">🔥</div>
+        <div>
+          <div class="solution-item-title">Streak & Habit System</div>
+          <div class="solution-item-body">Daily and weekly streaks tied to scheduled workouts. Miss a session? Re-engage flow brings you back gently. The product removes friction from returning after a break.</div>
+        </div>
+      </div>
+      <div class="solution-item">
+        <div class="solution-item-icon">⚡</div>
+        <div>
+          <div class="solution-item-title">Time-Optimised Workouts</div>
+          <div class="solution-item-body">Superset-based 25–40 min sessions for users who only have limited gym time. Research-backed intensity over duration. No excuse of "I don't have 2 hours."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 OUTCOME -->
+<section id="outcome">
+  <div class="container">
+    <div class="section-label fade-up">
+      <span class="section-label-num">09</span>
+      <div class="section-label-line"></div>
+      <span class="section-label-text">Outcome & Learnings</span>
+    </div>
+    <div class="section-heading fade-up fade-up-delay-1">What this project <em>delivered</em></div>
+
+    <div class="outcome-big fade-up fade-up-delay-2">
+      <div class="outcome-big-title">HABIT FIRST</div>
+      <div class="outcome-big-sub">The single design principle that emerged from every research conversation. The app doesn't just track workouts — it builds the architecture of showing up.</div>
+      <div class="outcome-pills">
+        <span class="outcome-pill">User Research</span>
+        <span class="outcome-pill">Product Strategy</span>
+        <span class="outcome-pill">Feature Definition</span>
+        <span class="outcome-pill">Competitive Analysis</span>
+        <span class="outcome-pill">Persona Design</span>
+      </div>
+    </div>
+
+    <div class="lessons-grid">
+      <div class="lesson-card fade-up fade-up-delay-1">
+        <div class="lesson-num">01</div>
+        <div class="lesson-title">Research changes everything</div>
+        <div class="lesson-body">We assumed a reward point system would be popular. The data — and the PT expert — strongly cautioned against it. Without the research, we'd have built the wrong feature.</div>
+      </div>
+      <div class="lesson-card fade-up fade-up-delay-2">
+        <div class="lesson-num">02</div>
+        <div class="lesson-title">Simplicity is a product decision</div>
+        <div class="lesson-body">Competitors like Fiton failed not because they lacked features — but because they had too many. The hardest UX decision is what to leave out. Focus beats breadth every time.</div>
+      </div>
+      <div class="lesson-card fade-up fade-up-delay-3">
+        <div class="lesson-num">03</div>
+        <div class="lesson-title">The blank screen is the enemy</div>
+        <div class="lesson-body">Both personas were stopped by not knowing what to do when they arrived at the gym. Onboarding and first-session guidance are not secondary features — they are the product.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-name">FORM</div>
+  <div class="footer-sub">UX Case Study · 2023 · <span class="footer-lime">Fitness · Habit Science · Product Design</span></div>
+</footer>
+
+<script>
+// Intersection Observer for scroll animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// Bar chart animation
+const barObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('.bar-fill').forEach(bar => {
+        const w = bar.dataset.width;
+        setTimeout(() => { bar.style.width = w + '%'; }, 200);
+      });
+    }
+  });
+}, { threshold: 0.3 });
+
+const chart = document.querySelector('.survey-chart');
+if (chart) barObserver.observe(chart);
+
+// Smooth active nav
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(section => {
+    if (window.scrollY >= section.offsetTop - 100) current = section.getAttribute('id');
+  });
+  navLinks.forEach(link => {
+    link.style.color = link.getAttribute('href') === '#' + current ? 'var(--sage-500)' : '';
+  });
+});
+</script>
+</body>
+</html>
